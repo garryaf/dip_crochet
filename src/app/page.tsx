@@ -4,9 +4,10 @@ import React from "react";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import dynamic from "next/dynamic";
-import { ShoppingBag, Star, Heart, ArrowRight, Sparkles } from "lucide-react";
+import { ShoppingBag, Star, Heart, ArrowRight, Sparkles, Menu, X, MapPin, ExternalLink, Music } from "lucide-react";
 import { CHARACTERS } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
+import Image from "next/image";
 
 const PlushViewer = dynamic(() => import("@/components/three/PlushViewer"), {
   ssr: false,
@@ -48,6 +49,8 @@ const scaleIn: Variants = {
 };
 
 export default function HomePage() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
 
@@ -56,10 +59,12 @@ export default function HomePage() {
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-0 w-full z-50 bg-white/60 backdrop-blur-xl border-b border-white/40 px-6 py-4 flex justify-between items-center"
+        className="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-white/40 px-6 py-4 flex justify-between items-center"
       >
         <BrandLogo />
-        <div className="hidden md:flex gap-8 font-medium text-muted-foreground text-sm">
+        
+        {/* Desktop Nav */}
+        <div className="hidden lg:flex gap-8 font-medium text-muted-foreground text-sm">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <Link href="/products" className="hover:text-primary transition-colors">Shop</Link>
           <Link href="/customizer" className="hover:text-primary transition-colors">Custom Build</Link>
@@ -67,14 +72,77 @@ export default function HomePage() {
             Graduation '24 ✦
           </Link>
         </div>
-        <div className="flex gap-3">
-          <button className="p-2 hover:bg-muted rounded-full transition-colors">
+
+        <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-4 mr-4 pr-4 border-r border-border">
+            <a href="https://www.instagram.com/dip_crochet" target="_blank" rel="noopener noreferrer" className="p-1.5 text-muted-foreground hover:text-primary transition-colors">
+              <svg className="w-5 h-5 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+            <a href="https://www.tiktok.com/@dip.crochet" target="_blank" rel="noopener noreferrer" className="p-1.5 text-muted-foreground hover:text-primary transition-colors">
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47V18c0 1.94-.66 3.82-1.88 5.32A9.91 9.91 0 0110.66 24C8.02 24.19 5.27 23.32 3.26 21.52 1.03 19.51-.15 16.39.02 13.43c.15-2.7 1.47-5.46 3.66-7.03 2.11-1.55 5.02-2.01 7.4-1.15V9.4c-1.31-.46-2.82-.33-4.01.44-1.22.79-1.92 2.26-1.71 3.71.25 1.62 1.58 3.14 3.26 3.4 1.54.21 3.19-.74 3.74-2.2.14-.38.16-.78.16-1.18V.24c.05-.14.1-.22.25-.22z"/>
+              </svg>
+            </a>
+          </div>
+          
+          <button className="p-2 hover:bg-muted rounded-full transition-colors relative">
             <ShoppingBag className="w-5 h-5" />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
           </button>
-          <button className="hidden md:block px-5 py-2 bg-primary text-white font-semibold rounded-full text-sm shadow-lg shadow-primary/25 hover:scale-105 transition-transform active:scale-95">
+          
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 hover:bg-muted rounded-full transition-colors"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+          
+          <Link href="/signin" className="hidden lg:block px-5 py-2 bg-primary text-white font-semibold rounded-full text-sm shadow-lg shadow-primary/25 hover:scale-105 transition-transform active:scale-95">
             Sign In
-          </button>
+          </Link>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="absolute top-full left-0 w-full bg-white shadow-2xl border-t border-border flex flex-col p-6 gap-6 lg:hidden"
+          >
+            <div className="flex flex-col gap-4">
+              <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold hover:text-primary">Home</Link>
+              <Link href="/products" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold hover:text-primary">Shop</Link>
+              <Link href="/customizer" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold hover:text-primary">Custom Builder</Link>
+              <Link href="/graduation" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-bold text-secondary">Graduation '24 ✦</Link>
+            </div>
+            
+            <div className="pt-6 border-t border-border flex items-center gap-6">
+              <a href="https://www.instagram.com/dip_crochet" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-semibold">
+                <svg className="w-6 h-6 stroke-primary fill-none" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                Instagram
+              </a>
+              <a href="https://www.tiktok.com/@dip.crochet" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-semibold">
+                <svg className="w-6 h-6 fill-primary" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47V18c0 1.94-.66 3.82-1.88 5.32A9.91 9.91 0 0110.66 24C8.02 24.19 5.27 23.32 3.26 21.52 1.03 19.51-.15 16.39.02 13.43c.15-2.7 1.47-5.46 3.66-7.03 2.11-1.55 5.02-2.01 7.4-1.15V9.4c-1.31-.46-2.82-.33-4.01.44-1.22.79-1.92 2.26-1.71 3.71.25 1.62 1.58 3.14 3.26 3.4 1.54.21 3.19-.74 3.74-2.2.14-.38.16-.78.16-1.18V.24c.05-.14.1-.22.25-.22z"/>
+                </svg>
+                TikTok
+              </a>
+            </div>
+            
+            <Link href="/signin" className="w-full py-4 bg-primary text-white text-center font-bold rounded-2xl shadow-xl">
+              Sign In
+            </Link>
+          </motion.div>
+        )}
       </motion.nav>
 
       {/* ─── Hero ─── */}
@@ -201,10 +269,19 @@ export default function HomePage() {
               className="group bg-white rounded-[2.5rem] overflow-hidden border border-border hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
             >
               <Link href={`/product/${char.id}`}>
-                <div className="relative aspect-square rounded-[2rem] m-3 mb-0 overflow-hidden flex items-center justify-center" style={{ backgroundColor: `${char.color}22` }}>
-                  <div className="text-[120px] font-black opacity-10 select-none" style={{ color: char.color }}>{char.name[0]}</div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <button className="absolute bottom-4 right-4 p-3.5 bg-white rounded-2xl shadow-xl translate-y-8 group-hover:translate-y-0 transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110">
+                <div className="relative aspect-square rounded-[2rem] m-3 mb-0 overflow-hidden flex items-center justify-center bg-accent/20">
+                  {char.image ? (
+                    <Image 
+                      src={char.image} 
+                      alt={char.name}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="text-[120px] font-black opacity-10 select-none" style={{ color: char.color }}>{char.name[0]}</div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <button className="absolute bottom-4 right-4 p-3.5 bg-white rounded-2xl shadow-xl translate-y-8 group-hover:translate-y-0 transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110 z-10">
                     <ShoppingBag className="w-5 h-5 text-primary" />
                   </button>
                 </div>
@@ -252,8 +329,92 @@ export default function HomePage() {
           {/* Decorative blobs */}
           <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/8 -skew-x-12 translate-x-16 pointer-events-none" />
           <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-primary/15 rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute top-12 right-48 w-48 h-48 bg-secondary/10 rounded-full blur-[80px] pointer-events-none" />
         </motion.div>
+      </section>
+
+      {/* ─── TikTok Experience ─── */}
+      <section className="py-24 px-6 md:px-20 bg-[#fffbf9]">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+            <div>
+              <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest mb-3">
+                <Music className="w-4 h-4" />
+                TikTok Spotlight
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tight">Vibes from <br /><span className="text-primary italic font-light">@dip.crochet</span></h2>
+            </div>
+            <a href="https://www.tiktok.com/@dip.crochet" target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-black text-white rounded-full font-bold text-sm hover:scale-105 transition-transform flex items-center gap-2">
+              Follow on TikTok
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="aspect-[9/16] bg-accent/30 rounded-[2rem] overflow-hidden relative group cursor-pointer border border-primary/10">
+                <div className="absolute inset-0 flex items-center justify-center opacity-40 group-hover:opacity-100 transition-opacity">
+                  <Music className="w-12 h-12 text-primary/40" />
+                </div>
+                <div className="absolute bottom-4 left-4 right-4 text-xs font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  #crochetasmr #handmade
+                </div>
+                {/* Overlay for glass effect */}
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Our Location ─── */}
+      <section className="py-24 px-6 md:px-20 border-t border-border/50">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent rounded-full text-primary font-bold text-xs uppercase tracking-widest mb-6">
+              <MapPin className="w-3.5 h-3.5" />
+              Our Studio
+            </div>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6">Visit us in <br /><span className="text-primary">Bekasi.</span></h2>
+            <p className="text-lg text-muted-foreground font-medium mb-8 leading-relaxed max-w-md">
+              Want to see our characters in person? Visit our handmade studio in the heart of Bekasi. We're open for consultations and custom orders.
+            </p>
+            
+            <div className="space-y-6 mb-10">
+              <div className="flex gap-4 items-start">
+                <div className="p-3 bg-accent rounded-2xl text-primary shrink-0">
+                  <MapPin className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg">Address</h4>
+                  <p className="text-muted-foreground font-medium">RT.001/RW.010, Jatisampurna, Bekasi,<br />West Java 17433</p>
+                </div>
+              </div>
+              {/* Add deep link to google maps */}
+              <a 
+                href="https://maps.app.goo.gl/whTVfq1q1CXneE3A7" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-white border border-border rounded-2xl font-bold hover:bg-accent/50 transition-colors group"
+              >
+                Open in Google Maps
+                <ExternalLink className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </a>
+            </div>
+          </div>
+          
+          <div className="h-[450px] rounded-[3rem] overflow-hidden border border-border shadow-2xl relative">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15860.916892305886!2d106.9150!3d-6.3688!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69930773998f45%3A0x6b876fc162e249b6!2sJatisampurna%2C%20Bekasi%20City%2C%20West%20Java!5e0!3m2!1sen!2sid!4v1714467200000!5m2!1sen!2sid" 
+              width="100%" 
+              height="100%" 
+              style={{ border: 0 }} 
+              allowFullScreen={true} 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+              className="grayscale contrast-110"
+            />
+          </div>
+        </div>
       </section>
 
       {/* ─── Footer ─── */}
@@ -276,9 +437,9 @@ export default function HomePage() {
           <div>
             <h4 className="font-bold text-sm uppercase tracking-wider mb-5 text-muted-foreground">Connect</h4>
             <ul className="flex flex-col gap-3 font-medium">
-              <li><a href="#" className="hover:text-primary transition-colors">Instagram</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">TikTok</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Contact Us</a></li>
+              <li><a href="https://www.instagram.com/dip_crochet" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Instagram</a></li>
+              <li><a href="https://www.tiktok.com/@dip.crochet" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">TikTok</a></li>
+              <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
             </ul>
           </div>
         </div>

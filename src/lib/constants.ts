@@ -7,7 +7,7 @@ export const CHARACTERS = [
     personality: "Shy, Sweet, Attentive",
     color: "#ff8fb1",
     secondaryColor: "#ffffff",
-    image: "/images/momo.jpg", // Placeholder
+    image: "/images/momo.png",
   },
   {
     id: "kuma-bear",
@@ -17,7 +17,7 @@ export const CHARACTERS = [
     personality: "Protective, Calm, Loyal",
     color: "#8d6e63",
     secondaryColor: "#d7ccc8",
-    image: "/images/kuma.jpg", // Placeholder
+    image: "/images/kuma.png",
   },
   {
     id: "pipo-duck",
@@ -27,7 +27,7 @@ export const CHARACTERS = [
     personality: "Adventurous, Cheerful, Energetic",
     color: "#ffd54f",
     secondaryColor: "#ffffff",
-    image: "/images/pipo.jpg", // Placeholder
+    image: "/images/pipo.png",
   },
 ];
 
