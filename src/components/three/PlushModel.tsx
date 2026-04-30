@@ -14,9 +14,9 @@ interface CrochetMeshProps {
 }
 
 function CrochetMesh({ position, rotation, geometry, color, roughness = 0.9 }: CrochetMeshProps) {
-  const mat = useMemo(() => {
-    // Build crochet texture procedurally
-    const size = 256;
+    const mat = useMemo(() => {
+    // Build highly detailed crochet texture procedurally
+    const size = 512; // Higher resolution for better detail
     const canvas = document.createElement("canvas");
     canvas.width = size;
     canvas.height = size;
@@ -28,53 +28,64 @@ function CrochetMesh({ position, rotation, geometry, color, roughness = 0.9 }: C
     document.body.appendChild(tempEl);
     const comp = window.getComputedStyle(tempEl).color;
     document.body.removeChild(tempEl);
-    const parts = comp.match(/\d+/g)?.map(Number) ?? [255, 143, 177];
-    const [r, g, b] = parts;
+    const [r, g, b] = comp.match(/\d+/g)?.map(Number) ?? [255, 143, 177];
 
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, size, size);
 
-    const sw = 14, sh = 11;
+    // Add noise for yarn fuzziness
+    for (let i = 0; i < 20000; i++) {
+      const x = Math.random() * size;
+      const y = Math.random() * size;
+      const alpha = Math.random() * 0.15;
+      ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+      ctx.fillRect(x, y, 1, 1);
+    }
+
+    const sw = 28, sh = 22; // Scaled for 512
     const rows = Math.ceil(size / sh) + 2;
     const cols = Math.ceil(size / sw) + 2;
 
     for (let row = 0; row < rows; row++) {
       const ox = (row % 2) * (sw / 2);
-      const y = row * sh - 4;
       for (let col = 0; col < cols; col++) {
         const x = col * sw + ox - sw;
+        const y = row * sh - 4;
         const cx = x + sw / 2, cy = y + sh / 2;
 
-        // Outer loop shadow
+        // The "Stitch" - more interlocking look
+        // Shadow for depth
         ctx.beginPath();
-        ctx.ellipse(cx, cy, sw / 2 - 1, sh / 2 - 1, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(${Math.max(0, r - 50)},${Math.max(0, g - 50)},${Math.max(0, b - 50)},0.75)`;
-        ctx.lineWidth = 2.8;
+        ctx.moveTo(cx - sw/2, cy);
+        ctx.bezierCurveTo(cx - sw/4, cy - sh/2, cx + sw/4, cy - sh/2, cx + sw/2, cy);
+        ctx.strokeStyle = `rgba(${Math.max(0, r - 60)},${Math.max(0, g - 60)},${Math.max(0, b - 60)},0.8)`;
+        ctx.lineWidth = 4;
         ctx.stroke();
 
-        // Inner yarn highlight
+        // Highlight for yarn twist
         ctx.beginPath();
-        ctx.ellipse(cx - 1, cy - 2, sw / 2 - 4, sh / 2 - 3.5, -0.2, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(${Math.min(255, r + 40)},${Math.min(255, g + 40)},${Math.min(255, b + 40)},0.5)`;
-        ctx.lineWidth = 1.3;
+        ctx.moveTo(cx - sw/3, cy - 2);
+        ctx.lineTo(cx + sw/3, cy - 2);
+        ctx.strokeStyle = `rgba(${Math.min(255, r + 50)},${Math.min(255, g + 50)},${Math.min(255, b + 50)},0.4)`;
+        ctx.lineWidth = 2;
         ctx.stroke();
 
-        // V-stitch top
+        // Characteristic "V" - stronger
         ctx.beginPath();
-        ctx.moveTo(cx - 3.5, cy - sh / 2 + 3.5);
-        ctx.lineTo(cx, cy - sh / 2 + 1);
-        ctx.lineTo(cx + 3.5, cy - sh / 2 + 3.5);
-        ctx.strokeStyle = `rgba(${Math.max(0, r - 35)},${Math.max(0, g - 35)},${Math.max(0, b - 35)},0.9)`;
-        ctx.lineWidth = 1.6;
+        ctx.moveTo(cx - 8, cy + 6);
+        ctx.lineTo(cx, cy - 2);
+        ctx.lineTo(cx + 8, cy + 6);
+        ctx.strokeStyle = `rgba(${Math.max(0, r - 40)},${Math.max(0, g - 40)},${Math.max(0, b - 40)},0.95)`;
+        ctx.lineWidth = 3.5;
         ctx.stroke();
       }
     }
 
     const map = new THREE.CanvasTexture(canvas);
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
-    map.repeat.set(5, 5);
+    map.repeat.set(6, 6);
 
-    // Normal map for surface bumps
+    // Realistic Normal Map for deep bumps
     const nc = document.createElement("canvas");
     nc.width = nc.height = size;
     const nctx = nc.getContext("2d")!;
@@ -83,30 +94,39 @@ function CrochetMesh({ position, rotation, geometry, color, roughness = 0.9 }: C
 
     for (let row = 0; row < rows; row++) {
       const ox = (row % 2) * (sw / 2);
-      const y = row * sh - 4;
       for (let col = 0; col < cols; col++) {
         const x = col * sw + ox - sw;
+        const y = row * sh - 4;
         const cx = x + sw / 2, cy = y + sh / 2;
-        const grd = nctx.createRadialGradient(cx, cy, 0, cx, cy, sw / 2);
-        grd.addColorStop(0, "rgb(140,140,255)");
-        grd.addColorStop(0.6, "rgb(128,160,255)");
-        grd.addColorStop(1, "rgb(95,95,215)");
+
+        const grd = nctx.createRadialGradient(cx, cy, 2, cx, cy, sw / 2);
+        grd.addColorStop(0, "rgb(160,160,255)");
+        grd.addColorStop(0.5, "rgb(128,200,255)");
+        grd.addColorStop(1, "rgb(80,80,180)");
         nctx.fillStyle = grd;
         nctx.beginPath();
-        nctx.ellipse(cx, cy, sw / 2 - 1, sh / 2 - 1, 0, 0, Math.PI * 2);
+        nctx.ellipse(cx, cy, sw / 2 - 2, sh / 2 - 2, 0, 0, Math.PI * 2);
         nctx.fill();
+        
+        // Add vertical "crease" in normal map for yarn twist
+        nctx.strokeStyle = "rgb(100,100,200)";
+        nctx.lineWidth = 2;
+        nctx.beginPath();
+        nctx.moveTo(cx, cy - sh/2);
+        nctx.lineTo(cx, cy + sh/2);
+        nctx.stroke();
       }
     }
 
     const normalMap = new THREE.CanvasTexture(nc);
     normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping;
-    normalMap.repeat.set(5, 5);
+    normalMap.repeat.set(6, 6);
 
     return new THREE.MeshStandardMaterial({
       map,
       normalMap,
-      normalScale: new THREE.Vector2(1.2, 1.2),
-      roughness,
+      normalScale: new THREE.Vector2(2.5, 2.5), // Increased scale for more "bumpy" look
+      roughness: 1.0, // Fully rough for yarn
       metalness: 0,
     });
   }, [color, roughness]);

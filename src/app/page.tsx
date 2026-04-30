@@ -341,9 +341,15 @@ export default function HomePage() {
                 <Music className="w-4 h-4" />
                 TikTok Spotlight
               </div>
-              <h2 className="text-4xl md:text-6xl font-black tracking-tight">Vibes from <br /><span className="text-primary italic font-light">@dip.crochet</span></h2>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tight flex flex-wrap gap-x-4 items-center">
+                Vibes from 
+                <span className="text-primary italic font-light inline-flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm not-italic">@</span>
+                  dip.crochet
+                </span>
+              </h2>
             </div>
-            <a href="https://www.tiktok.com/@dip.crochet" target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-black text-white rounded-full font-bold text-sm hover:scale-105 transition-transform flex items-center gap-2">
+            <a href="https://www.tiktok.com/@dip.crochet" target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-black text-white rounded-2xl font-bold text-sm hover:scale-105 hover:-translate-y-1 transition-all flex items-center gap-2 shadow-xl">
               Follow on TikTok
               <ArrowRight className="w-4 h-4" />
             </a>
