@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight, Heart } from "lucide-react";
+import { ArrowRight, Heart, Timer } from "lucide-react";
 import Image from "next/image";
 import { CHARACTERS } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
@@ -65,6 +65,11 @@ export default function CharacterSeries() {
                 ) : (
                   <div className="text-[140px] font-black opacity-5 select-none" style={{ color: char.color }}>{char.name[0]}</div>
                 )}
+                <div className="absolute top-8 left-8 flex items-center gap-2 px-3 py-1 bg-white/90 backdrop-blur rounded-full text-[10px] font-black text-secondary uppercase tracking-widest shadow-sm">
+                   <Timer className="w-3 h-3" />
+                   {index === 0 ? "Only 2 left" : "Crafting Slot Open"}
+                </div>
+                
                 <div className="absolute inset-0 bg-gradient-to-t from-[#4a3a35]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 {/* Floating "Adopt" badge on hover */}

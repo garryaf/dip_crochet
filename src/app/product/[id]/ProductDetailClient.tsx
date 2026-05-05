@@ -9,6 +9,8 @@ import BrandLogo from "@/components/ui/BrandLogo";
 import { CHARACTERS, COLORS } from "@/lib/constants";
 import { formatPrice, cn } from "@/lib/utils";
 import { getWhatsAppLink } from "@/lib/constants";
+import CrossSell from "@/features/product/components/CrossSell";
+import Footer from "@/shared/components/layout/Footer";
 
 // Lazy load the 3D viewer — do NOT SSR
 const PlushViewer = dynamic(() => import("@/components/three/PlushViewer"), {
@@ -160,6 +162,8 @@ export default function ProductDetailClient({ id }: ProductDetailClientProps) {
                   <ArrowLeft className="w-5 h-5 rotate-180" />
                </Link>
             </div>
+
+            <CrossSell currentId={id} />
           </div>
         </section>
       </main>

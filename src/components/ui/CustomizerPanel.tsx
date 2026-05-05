@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { COLORS, EYE_STYLES, ACCESSORIES } from "@/lib/constants";
-import { Check, Info, Heart } from "lucide-react";
+import { Check, Info, Heart, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getWhatsAppLink } from "@/lib/constants";
 
@@ -29,11 +29,27 @@ export function CustomizerPanel({ onUpdate }: CustomizerPanelProps) {
     onUpdate(newConfig);
   };
 
+  const handleRandomize = () => {
+    const randomColor = COLORS[Math.floor(Math.random() * COLORS.length)].value;
+    const randomEye = EYE_STYLES[Math.floor(Math.random() * EYE_STYLES.length)].id;
+    const randomAcc = ACCESSORIES[Math.floor(Math.random() * ACCESSORIES.length)].id;
+    
+    const newConfig = { ...config, color: randomColor, eyeStyle: randomEye, accessory: randomAcc };
+    setConfig(newConfig);
+    onUpdate(newConfig);
+  };
+
   return (
     <div className="flex flex-col gap-8 p-8 bg-white/60 backdrop-blur-xl rounded-[3rem] border border-white/50 custom-shadow">
       <div>
-        <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-[#4a3a35]">
+        <h3 className="text-lg font-black mb-4 flex items-center justify-between text-[#4a3a35]">
           1. Choice of Spirit (Color)
+          <button 
+            onClick={handleRandomize}
+            className="flex items-center gap-2 px-3 py-1.5 bg-accent rounded-full text-primary font-black text-[10px] uppercase tracking-widest hover:bg-primary/20 transition-colors"
+          >
+            <Wand2 className="w-3 h-3" /> Inspire Me
+          </button>
         </h3>
         <div className="flex flex-wrap gap-3">
           {COLORS.map((color) => (

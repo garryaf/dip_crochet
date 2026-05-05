@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { MapPin, ExternalLink } from "lucide-react";
+import { MapPin, ExternalLink, Clock, PackageCheck } from "lucide-react";
 import { BRAND } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 export default function Location() {
   return (
@@ -20,19 +21,34 @@ export default function Location() {
           
           <div className="space-y-6 mb-10">
             <div className="flex gap-4 items-start">
-              <div className="p-3 bg-accent rounded-2xl text-primary shrink-0">
-                <MapPin className="w-6 h-6" />
+              <div className="p-3 bg-secondary/10 rounded-2xl text-secondary shrink-0">
+                <Clock className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-bold text-lg">Address</h4>
-                <p className="text-muted-foreground font-medium">{BRAND.address}</p>
+                <h4 className="font-bold text-lg">Workshop Hours</h4>
+                <p className="text-muted-foreground font-medium">Mon - Sat: 09:00 - 18:00</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                   <span className="text-[10px] font-black uppercase text-green-600 tracking-widest">Open Now</span>
+                </div>
               </div>
             </div>
+
+            <div className="p-6 bg-accent/40 rounded-[2rem] border border-primary/10 flex items-center gap-5">
+               <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm">
+                  <PackageCheck className="w-6 h-6" />
+               </div>
+               <div>
+                  <p className="font-black text-sm text-[#4a3a35]">Free Store Pickup</p>
+                  <p className="text-xs text-muted-foreground font-medium">Save on shipping. Pick up your soul at our Bekasi studio.</p>
+               </div>
+            </div>
+
             <a 
               href={BRAND.googleMaps} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-white border border-border rounded-2xl font-bold hover:bg-accent/50 transition-colors group"
+              className="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-white border border-border rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-accent/50 transition-colors group shadow-sm"
             >
               Open in Google Maps
               <ExternalLink className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />

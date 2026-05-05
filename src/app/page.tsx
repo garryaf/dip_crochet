@@ -8,6 +8,7 @@ import CharacterSeries from "@/features/home/components/CharacterSeries";
 import CustomBuilderCTA from "@/features/home/components/CustomBuilderCTA";
 import TikTokSpotlight from "@/features/home/components/TikTokSpotlight";
 import MeetTheMaker from "@/features/home/components/MeetTheMaker";
+import FaqSection from "@/features/home/components/FaqSection";
 import Location from "@/features/home/components/Location";
 
 export default function HomePage() {
@@ -21,6 +22,7 @@ export default function HomePage() {
         <CustomBuilderCTA />
         <TikTokSpotlight />
         <MeetTheMaker />
+        <FaqSection />
         <Location />
       </main>
 
