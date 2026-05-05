@@ -1,6 +1,6 @@
 export const BRAND = {
   name: "dip.crochet",
-  tagline: "Handmade with Love ✦ Bekasi",
+  tagline: "Handmade with Soul ✦ Bekasi",
   whatsapp: "6281234567890", // Replace with actual WhatsApp number
   instagram: "https://www.instagram.com/dip_crochet/",
   tiktok: "https://www.tiktok.com/@dip.crochet_",
@@ -15,78 +15,51 @@ export function getWhatsAppLink(message: string) {
 export const CHARACTERS = [
   {
     id: "momo-bunny",
-    name: "Momo the Bunny",
-    price: 75000,
-    story: "Momo is a shy but sweet bunny who loves strawberry fields and warm hugs. She's always ready to listen to your secrets.",
-    personality: "Shy, Sweet, Attentive",
-    color: "#ff8fb1",
-    secondaryColor: "#ffffff",
-    image: "/images/momo.png",
-    badge: "Best Seller ✦",
-  },
-  {
-    id: "kuma-bear",
-    name: "Kuma the Bear",
+    name: "Momo — Secret-Keeper Bunny",
     price: 95000,
-    story: "Kuma is the protector of the forest. He loves honey tea and napping under oak trees with his best friends.",
-    personality: "Protective, Calm, Loyal",
-    color: "#8d6e63",
-    secondaryColor: "#d7ccc8",
-    image: "/images/kuma.png",
-    badge: "New Arrival",
+    color: "#ff8fb1",
+    personality: "Empathetic, Quiet, Loyal",
+    story: "Stitched with extra-soft milk cotton to handle late-night hugs and whispered secrets. Momo is the perfect companion for those who need a silent, loyal listener.",
+    image: null,
   },
   {
-    id: "pipo-duck",
-    name: "Pipo the Duck",
-    price: 65000,
-    story: "Pipo is an adventurous little duck who dreams of traveling across the seven ponds. He always wears his yellow raincoat.",
-    personality: "Adventurous, Cheerful, Energetic",
-    color: "#ffd54f",
-    secondaryColor: "#ffffff",
-    image: "/images/pipo.png",
-    badge: "Fan Favorite",
+    id: "kopi-bear",
+    name: "Kopi — The Midnight Bear",
+    price: 95000,
+    color: "#4a3a35",
+    personality: "Calm, Protective, Warm",
+    story: "Made with deep chocolate yarn, Kopi was born to watch over your dreams. He’s a bit shy but has the warmest heart (and the softest ears) in the workshop.",
+    image: null,
+  },
+  {
+    id: "pip-duck",
+    name: "Pip — The Optimism Duck",
+    price: 85000,
+    color: "#ffca3a",
+    personality: "Cheerful, Adventurous, Brave",
+    story: "Pip believes every day is an adventure. Even on rainy days, Pip’s bright yellow stitches remind you that the sun is always just behind the clouds.",
+    image: null,
   },
 ];
 
 export const COLORS = [
-  { name: "Cotton Pink", value: "#ff8fb1" },
-  { name: "Minty Fresh", value: "#6ebfb5" },
-  { name: "Creamy Sky", value: "#b3e5fc" },
-  { name: "Lilac Dream", value: "#ce93d8" },
-  { name: "Lemon Soda", value: "#fff59d" },
-  { name: "Soft Marshmallow", value: "#ffffff" },
+  { name: "Strawberry Pink", value: "#ff8fb1" },
+  { name: "Chocolate Brown", value: "#4a3a35" },
+  { name: "Sunlight Yellow", value: "#ffca3a" },
+  { name: "Matcha Green", value: "#A4BE7B" },
+  { name: "Sky Blue", value: "#B4E4FF" },
+  { name: "Cotton White", value: "#ffffff" },
 ];
 
 export const EYE_STYLES = [
-  { id: "cute", name: "Cute / Classic" },
-  { id: "sleepy", name: "Sleepy / Relaxed" },
-  { id: "happy", name: "Happy / Blinking" },
+  { id: "cute", name: "Innocent (Dot)" },
+  { id: "sleepy", name: "Dreamy (Closed)" },
+  { id: "wink", name: "Playful (Wink)" },
 ];
 
 export const ACCESSORIES = [
-  { id: "none", name: "None" },
-  { id: "hat", name: "Classic Hat" },
+  { id: "none", name: "No Accessories" },
+  { id: "scarf", name: "Cozy Wool Scarf" },
+  { id: "ribbon", name: "Silk Bow Ribbon" },
   { id: "grad-cap", name: "Graduation Cap" },
-  { id: "couple", name: "Couple Set (Pair)" },
-];
-
-export const TESTIMONIALS = [
-  {
-    name: "Rina A.",
-    text: "Bonekanya lucu banget, jahitannya rapi dan warnanya persis kayak di foto. Pasti order lagi! 💕",
-    rating: 5,
-    product: "Momo the Bunny",
-  },
-  {
-    name: "Dinda S.",
-    text: "Beli buat kado wisuda temen, dia sampe nangis seneng. Packagingnya juga premium banget!",
-    rating: 5,
-    product: "Graduation Series",
-  },
-  {
-    name: "Farah M.",
-    text: "Custom doll-nya exactly kayak yang aku mau. Komunikasinya juga ramah dan fast response 🧶",
-    rating: 5,
-    product: "Custom Doll",
-  },
 ];
