@@ -2,8 +2,8 @@ export const BRAND = {
   name: "dip.crochet",
   tagline: "Handmade with Love ✦ Bekasi",
   whatsapp: "6281234567890", // Replace with actual WhatsApp number
-  instagram: "https://www.instagram.com/dip_crochet",
-  tiktok: "https://www.tiktok.com/@dip.crochet",
+  instagram: "https://www.instagram.com/dip_crochet/",
+  tiktok: "https://www.tiktok.com/@dip.crochet_",
   googleMaps: "https://maps.app.goo.gl/whTVfq1q1CXneE3A7",
   address: "RT.001/RW.010, Jatisampurna, Bekasi, West Java 17433",
 } as const;

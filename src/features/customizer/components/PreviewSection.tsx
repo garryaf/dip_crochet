@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Clock } from "lucide-react";
 import { CustomizationConfig } from "../hooks/useCustomization";
 
 const PlushViewer = dynamic(() => import("@/components/three/PlushViewer"), {
@@ -26,6 +26,11 @@ export default function PreviewSection({ config }: PreviewSectionProps) {
         <div className="absolute top-8 left-8 flex items-center gap-2 px-4 py-2 bg-accent rounded-full text-primary font-bold text-sm shadow-sm z-10">
           <Sparkles className="w-4 h-4" />
           Live Preview
+        </div>
+
+        <div className="absolute top-8 right-8 flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur rounded-full text-secondary font-bold text-[10px] shadow-sm z-10 border border-secondary/10">
+          <Clock className="w-3 h-3" />
+          Queue: 3 dolls ahead
         </div>
         
         <PlushViewer 

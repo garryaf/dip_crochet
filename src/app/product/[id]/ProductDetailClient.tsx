@@ -8,6 +8,7 @@ import { ArrowLeft, ShoppingBag, Star, RotateCcw, ZoomIn, ZoomOut } from "lucide
 import BrandLogo from "@/components/ui/BrandLogo";
 import { CHARACTERS, COLORS } from "@/lib/constants";
 import { formatPrice, cn } from "@/lib/utils";
+import { getWhatsAppLink } from "@/lib/constants";
 
 // Lazy load the 3D viewer — do NOT SSR
 const PlushViewer = dynamic(() => import("@/components/three/PlushViewer"), {
@@ -136,8 +137,14 @@ export default function ProductDetailClient({ id }: ProductDetailClientProps) {
 
             {/* CTA */}
             <div className="flex gap-4 mt-2">
-              <button className="flex-1 py-5 bg-primary text-white font-black text-lg rounded-2xl shadow-xl shadow-primary/25 hover:bg-primary/90 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2">
-                <ShoppingBag className="w-5 h-5" /> Add to Cart
+              <button 
+                onClick={() => {
+                  const message = `Hi dip.crochet! I want to order ${character.name} in ${selectedColor} color. Is it available?`;
+                  window.open(getWhatsAppLink(message), "_blank");
+                }}
+                className="flex-1 py-5 bg-primary text-white font-black text-lg rounded-2xl shadow-xl shadow-primary/25 hover:bg-primary/90 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <ShoppingBag className="w-5 h-5" /> Order via WhatsApp
               </button>
               <Link
                 href="/customizer"

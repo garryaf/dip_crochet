@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import TrustSignals from "@/shared/components/ui/TrustSignals";
 
 export const metadata: Metadata = {
   title: "dip.crochet — Premium Handmade Crochet Characters",
@@ -29,7 +30,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#fffbf9]">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#fffbf9]">
+        {children}
+        <TrustSignals />
+      </body>
     </html>
   );
 }

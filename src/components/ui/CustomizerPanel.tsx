@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { COLORS, EYE_STYLES, ACCESSORIES } from "@/lib/constants";
 import { Check, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getWhatsAppLink } from "@/lib/constants";
 
 interface CustomizerPanelProps {
   onUpdate: (config: {
@@ -109,8 +110,19 @@ export function CustomizerPanel({ onUpdate }: CustomizerPanelProps) {
         </p>
       </div>
       
-      <button className="w-full py-4 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all transform hover:-translate-y-1">
-        Add to Cart — $25.00
+      <button 
+        onClick={() => {
+          const colorName = COLORS.find(c => c.value === config.color)?.name || config.color;
+          const eyeName = EYE_STYLES.find(e => e.id === config.eyeStyle)?.name || config.eyeStyle;
+          const accName = ACCESSORIES.find(a => a.id === config.accessory)?.name || config.accessory;
+          
+          const message = `Hi dip.crochet! I'd like to order a custom crochet doll:\n- Color: ${colorName}\n- Eye Style: ${eyeName}\n- Accessory: ${accName}\n- Name Tag: ${config.name || "None"}\n\nIs this ready for crafting?`;
+          
+          window.open(getWhatsAppLink(message), "_blank");
+        }}
+        className="w-full py-4 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all transform hover:-translate-y-1"
+      >
+        Order Custom Doll — IDR 95.000
       </button>
     </div>
   );
