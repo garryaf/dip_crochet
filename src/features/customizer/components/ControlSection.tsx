@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { Info } from "lucide-react";
+import { Info, Heart } from "lucide-react";
 import { CustomizerPanel } from "@/components/ui/CustomizerPanel";
-import { CustomizationConfig } from "../hooks/useCustomization";
 
 interface ControlSectionProps {
   onUpdate: (config: any) => void;
@@ -11,25 +10,27 @@ interface ControlSectionProps {
 
 export default function ControlSection({ onUpdate }: ControlSectionProps) {
   return (
-    <section className="flex flex-col gap-8">
-       <div className="flex flex-col gap-2">
-          <h1 className="text-5xl font-black tracking-tight leading-tight">
-            Create your personal <br />
-            <span className="text-primary text-glow italic">Crochet Doll</span>.
+    <section className="flex flex-col gap-10">
+       <div className="flex flex-col gap-3">
+          <p className="text-primary font-black text-[10px] uppercase tracking-[0.3em]">The Workshop</p>
+          <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-[1.1] text-[#4a3a35]">
+            Co-create your<br />
+            <span className="text-primary italic font-light">forever friend.</span>
           </h1>
-          <p className="text-lg text-muted-foreground font-medium">
-            Customize every detail. Our master artisans will crochet it stitch by stitch just for you.
+          <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+            Every companion starts with a dream. Choose the details that resonate with you, and we'll bring them to life with every stitch.
           </p>
        </div>
        
        <CustomizerPanel onUpdate={onUpdate} />
 
-       <div className="p-6 rounded-2xl bg-muted/50 border border-border">
-          <h4 className="font-bold mb-2 flex items-center gap-2">
-            <Info className="w-4 h-4" /> Why Custom?
+       <div className="p-8 rounded-[2.5rem] bg-white border border-border/50 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-secondary" />
+          <h4 className="font-black text-lg mb-3 flex items-center gap-2 text-[#4a3a35]">
+            <Heart className="w-5 h-5 text-secondary fill-secondary" /> Why Co-create?
           </h4>
           <p className="text-sm text-muted-foreground leading-relaxed font-medium">
-            Custom dolls are perfect for personalized gifts, matching with your partner, or celebrating a major life milestone like graduation or a new job.
+            Unlike mass-produced toys, a co-created companion carries your intent. Whether it's a gift for a loved one or a treat for your inner child, it’s a story waiting to be told.
           </p>
        </div>
     </section>

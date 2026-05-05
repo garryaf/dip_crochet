@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight, ShoppingBag } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import Image from "next/image";
 import { CHARACTERS } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
@@ -23,7 +23,7 @@ const fadeUp: Variants = {
 
 export default function CharacterSeries() {
   return (
-    <section className="py-28 px-6 md:px-20 bg-muted/20">
+    <section className="py-28 px-6 md:px-20 bg-muted/20 texture-bg">
       <motion.div
         initial="hidden"
         whileInView="show"
@@ -32,17 +32,17 @@ export default function CharacterSeries() {
         className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6"
       >
         <motion.div variants={fadeUp} className="max-w-xl">
-          <p className="text-primary font-bold text-xs uppercase tracking-widest mb-3">Character Collection</p>
-          <h2 className="text-4xl md:text-6xl font-black tracking-tight">Meet the<br /><span className="italic font-light text-muted-foreground">full cast.</span></h2>
+          <p className="text-primary font-black text-[10px] uppercase tracking-[0.3em] mb-4">The Soul Collection</p>
+          <h2 className="text-4xl md:text-6xl font-black tracking-tight text-[#4a3a35]">Find your<br /><span className="italic font-light text-muted-foreground">forever friend.</span></h2>
         </motion.div>
         <motion.div variants={fadeUp}>
-          <Link href="/products" className="group text-primary font-bold flex items-center gap-2 hover:gap-3 transition-all text-base">
-            See all characters <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <Link href="/products" className="group text-primary font-black flex items-center gap-3 hover:gap-4 transition-all text-sm uppercase tracking-widest">
+            View all souls <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {CHARACTERS.map((char, index) => (
           <motion.div
             key={char.id}
@@ -50,35 +50,40 @@ export default function CharacterSeries() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: index * 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ y: -6 }}
-            className="group bg-white rounded-[2.5rem] overflow-hidden border border-border hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
+            whileHover={{ y: -8 }}
+            className="group bg-white rounded-[3rem] overflow-hidden border border-border/50 hover:shadow-[0_32px_64px_-16px_rgba(74,58,53,0.08)] transition-all duration-500 cursor-pointer"
           >
             <Link href={`/product/${char.id}`}>
-              <div className="relative aspect-square rounded-[2rem] m-3 mb-0 overflow-hidden flex items-center justify-center bg-accent/20">
+              <div className="relative aspect-square rounded-[2.5rem] m-4 mb-0 overflow-hidden flex items-center justify-center bg-accent/20">
                 {char.image ? (
                   <Image 
                     src={char.image} 
                     alt={char.name}
                     fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
                   />
                 ) : (
-                  <div className="text-[120px] font-black opacity-10 select-none" style={{ color: char.color }}>{char.name[0]}</div>
+                  <div className="text-[140px] font-black opacity-5 select-none" style={{ color: char.color }}>{char.name[0]}</div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <button className="absolute bottom-4 right-4 p-3.5 bg-white rounded-2xl shadow-xl translate-y-8 group-hover:translate-y-0 transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110 z-10">
-                  <ShoppingBag className="w-5 h-5 text-primary" />
-                </button>
-              </div>
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-black">{char.name}</h3>
-                  <span className="text-lg font-bold text-primary">{formatPrice(char.price)}</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#4a3a35]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* Floating "Adopt" badge on hover */}
+                <div className="absolute inset-0 flex items-center justify-center translate-y-10 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 z-10">
+                   <div className="px-6 py-3 bg-white text-primary font-black rounded-full shadow-xl flex items-center gap-2 scale-90 group-hover:scale-100 transition-transform">
+                      <Heart className="w-4 h-4 fill-primary" />
+                      Adopt {char.name.split(' ')[0]}
+                   </div>
                 </div>
-                <p className="text-muted-foreground text-sm line-clamp-2 mb-4 leading-relaxed">{char.story}</p>
-                <div className="flex gap-1.5 flex-wrap">
+              </div>
+              <div className="p-8">
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-2xl font-black text-[#4a3a35] tracking-tight">{char.name}</h3>
+                  <span className="text-xl font-black text-primary">{formatPrice(char.price)}</span>
+                </div>
+                <p className="text-muted-foreground text-sm line-clamp-2 mb-6 leading-relaxed font-medium">"{char.story}"</p>
+                <div className="flex gap-2 flex-wrap">
                   {char.personality.split(', ').map((p) => (
-                    <span key={p} className="px-2.5 py-1 bg-accent/60 rounded-full text-[11px] font-semibold text-primary">{p}</span>
+                    <span key={p} className="px-3.5 py-1.5 bg-accent/40 rounded-full text-[10px] font-black uppercase tracking-widest text-primary border border-primary/5">{p}</span>
                   ))}
                 </div>
               </div>

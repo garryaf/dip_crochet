@@ -1,78 +1,85 @@
 @import "tailwindcss";
 
-:root {
-  --background: #fffbf9;
-  --foreground: #4a3a35;
-  --card: #ffffff;
-  --card-foreground: #4a3a35;
-  --popover: #ffffff;
-  --popover-foreground: #4a3a35;
-  --primary: #ff8fb1;
-  --primary-foreground: #ffffff;
-  --secondary: #6ebfb5;
-  --secondary-foreground: #ffffff;
-  --muted: #f3ece7;
-  --muted-foreground: #8a7a75;
-  --accent: #f9d8d6;
-  --accent-foreground: #4a3a35;
-  --destructive: #ef4444;
-  --destructive-foreground: #f8fafc;
-  --border: #f1e6e1;
-  --input: #f1e6e1;
-  --ring: #ff8fb1;
-  --radius: 1.5rem;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-
-  --font-sans: 'Outfit', var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@theme {
+  --color-background: #fffbf9;
+  --color-foreground: #2d2320;
+  --color-primary: #ff8fb1;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #6ebfb5;
+  --color-secondary-foreground: #ffffff;
+  --color-accent: #fff0f3;
+  --color-accent-foreground: #ff8fb1;
+  --color-muted: #f5eeeb;
+  --color-muted-foreground: #8a7a76;
+  --color-border: #e8dedb;
 }
 
 @layer base {
-  * {
-    border-color: var(--border);
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Custom Typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight font-black;
+    color: #4a3a35;
   }
 }
 
-.custom-shadow {
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+@layer components {
+  /* Tactile Texture Background */
+  .texture-bg {
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(255, 143, 177, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(110, 191, 181, 0.05) 0px, transparent 50%),
+      url("https://www.transparenttextures.com/patterns/felt.png");
+  }
+
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-xl border border-white/50;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(255, 143, 177, 0.3);
+  }
+
+  .custom-shadow {
+    box-shadow: 0 20px 40px -12px rgba(74, 58, 53, 0.1);
+  }
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Custom Cursor for 3D */
+.cursor-grab {
+  cursor: grab;
+}
+.cursor-grabbing {
+  cursor: grabbing;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f5eeeb;
+}
+::-webkit-scrollbar-thumb {
+  background: #e8dedb;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff8fb1;
 }
