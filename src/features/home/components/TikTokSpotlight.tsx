@@ -2,14 +2,14 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Music, ArrowRight, Play } from "lucide-react";
+import { Music, ArrowRight } from "lucide-react";
 import { BRAND } from "@/lib/constants";
 
 const TIKTOK_VIDEOS = [
-  { id: 1, views: "12.5K", tag: "#crochetasmr" },
-  { id: 2, views: "8.2K", tag: "#handmade" },
-  { id: 3, views: "15.1K", tag: "#crochettips" },
-  { id: 4, views: "9.8K", tag: "#giftideas" },
+  { id: "7608837833268219144", tag: "#crochetasmr" },
+  { id: "7603159595636231431", tag: "#handmade" },
+  { id: "7602729212436434184", tag: "#crochettips" },
+  { id: "7600982266721864968", tag: "#giftideas" },
 ];
 
 export default function TikTokSpotlight() {
@@ -43,37 +43,29 @@ export default function TikTokSpotlight() {
           </a>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {TIKTOK_VIDEOS.map((video, i) => (
             <motion.div 
               key={video.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="aspect-[9/16] bg-accent/30 rounded-[2.5rem] overflow-hidden relative group cursor-pointer border border-primary/10 shadow-sm hover:shadow-2xl transition-all"
+              className="aspect-[9/16] bg-accent/30 rounded-[2.5rem] overflow-hidden relative group border border-primary/10 shadow-sm hover:shadow-2xl transition-all"
             >
-              {/* Fake Video Preview Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/60 z-10" />
+              <iframe
+                src={`https://www.tiktok.com/embed/v2/${video.id}`}
+                className="w-full h-full border-none"
+                allowFullScreen
+                allow="autoplay; encrypted-media; picture-in-picture"
+              />
               
-              {/* Play Button */}
-              <div className="absolute inset-0 flex items-center justify-center z-20">
-                <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:scale-110 transition-transform border border-white/30">
-                  <Play className="w-6 h-6 text-white fill-white" />
-                </div>
-              </div>
-
-              {/* Video Info */}
-              <div className="absolute bottom-6 left-5 right-5 z-20">
-                 <p className="text-white font-bold text-xs mb-1 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
-                    {video.views} views
+              {/* Optional overlay to capture clicks if needed, but iframe handles internally */}
+              <div className="absolute top-4 right-4 z-20">
+                 <p className="bg-white/80 backdrop-blur px-2.5 py-1 rounded-full shadow-sm text-[10px] font-bold text-primary uppercase tracking-tighter">
+                   {video.tag}
                  </p>
-                 <p className="text-white/80 font-medium text-[10px] uppercase tracking-widest">{video.tag}</p>
               </div>
-
-              {/* Hover Glow */}
-              <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
             </motion.div>
           ))}
         </div>
@@ -84,7 +76,7 @@ export default function TikTokSpotlight() {
                   <Music className="text-secondary w-6 h-6" />
                </div>
                <div>
-                  <h4 className="font-bold text-lg">Join our 50K+ community</h4>
+                  <h4 className="font-bold text-lg">Join our community</h4>
                   <p className="text-muted-foreground text-sm font-medium">Get daily behind-the-scenes and crochet ASMR.</p>
                </div>
             </div>
