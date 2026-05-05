@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ArrowLeft, ShoppingBag, Star, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
+import BrandLogo from "@/components/ui/BrandLogo";
 import { CHARACTERS, COLORS } from "@/lib/constants";
 import { formatPrice, cn } from "@/lib/utils";
 
@@ -37,7 +38,7 @@ export default function ProductDetailClient({ id }: ProductDetailClientProps) {
         <Link href="/products" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold">
           <ArrowLeft className="w-5 h-5" /> All Characters
         </Link>
-        <div className="text-2xl font-black text-primary tracking-tighter">COTCRET.</div>
+        <BrandLogo />
         <button className="p-2 hover:bg-muted rounded-full transition-colors">
           <ShoppingBag className="w-6 h-6" />
         </button>

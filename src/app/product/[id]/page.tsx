@@ -12,15 +12,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!character) {
     return {
-      title: "Product Not Found | Cotcret",
+      title: "Product Not Found | dip.crochet",
     };
   }
 
   return {
-    title: `${character.name} | Cotcret Premium Crochet`,
+    title: `${character.name} | dip.crochet Premium Crochet`,
     description: character.story,
     openGraph: {
-      title: `${character.name} | Cotcret`,
+      title: `${character.name} | dip.crochet`,
       description: character.story,
     },
   };
