@@ -1,34 +1,41 @@
-"use client";
+import type { Metadata } from "next";
+import CustomizerClient from "@/features/customizer/components/CustomizerClient";
+import { siteConfig } from "@/config/site";
+import { generateBreadcrumbSchema } from "@/shared/lib/jsonLd";
 
-import React from "react";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import BrandLogo from "@/components/ui/BrandLogo";
-import PreviewSection from "@/features/customizer/components/PreviewSection";
-import ControlSection from "@/features/customizer/components/ControlSection";
-import { useCustomization } from "@/features/customizer/hooks/useCustomization";
-import Footer from "@/shared/components/layout/Footer";
+export const metadata: Metadata = {
+  title: "Custom Builder — Co-create Your Own Companion",
+  description:
+    "Design your own handmade crochet companion. Choose yarn color, eye style, accessories, and name. Every custom doll is hand-stitched with love in our Bekasi studio.",
+  alternates: {
+    canonical: "/customizer",
+  },
+  openGraph: {
+    title: "Custom Builder | dip.crochet",
+    description:
+      "Co-create your own forever friend. Choose every detail and we'll bring it to life.",
+    type: "website",
+    url: `${siteConfig.url}/customizer`,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 export default function CustomizerPage() {
-  const { config, setConfig } = useCustomization();
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: siteConfig.url },
+    { name: "Custom Builder", url: `${siteConfig.url}/customizer` },
+  ]);
 
   return (
-    <div className="min-h-screen bg-[#fffbf9] flex flex-col">
-      {/* Header */}
-      <nav className="p-6 flex justify-between items-center bg-white/50 backdrop-blur-md sticky top-0 z-50">
-        <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold">
-          <ArrowLeft className="w-5 h-5" /> Back to Home
-        </Link>
-        <BrandLogo />
-        <div className="w-24" /> {/* Spacer */}
-      </nav>
-
-      <main className="flex-grow max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-12 lg:gap-20">
-        <PreviewSection config={config} />
-        <ControlSection onUpdate={setConfig} />
-      </main>
-
-      <Footer />
-    </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <CustomizerClient />
+    </>
   );
 }

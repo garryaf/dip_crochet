@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { COLORS, EYE_STYLES, ACCESSORIES } from "@/lib/constants";
 import { Check, Info, Heart, Wand2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { getWhatsAppLink } from "@/lib/constants";
 
@@ -21,9 +22,11 @@ export function CustomizerPanel({ onUpdate }: CustomizerPanelProps) {
     eyeStyle: EYE_STYLES[0].id,
     accessory: ACCESSORIES[0].id,
     name: "",
+    isGift: false,
+    giftMessage: "",
   });
 
-  const handleChange = (key: string, value: string) => {
+  const handleChange = (key: string, value: string | boolean) => {
     const newConfig = { ...config, [key]: value };
     setConfig(newConfig);
     onUpdate(newConfig);
@@ -127,6 +130,37 @@ export function CustomizerPanel({ onUpdate }: CustomizerPanelProps) {
           <Info className="w-3 h-3" /> Every name is hand-embroidered on a tiny wooden heart.
         </p>
       </div>
+
+      <div className="p-6 rounded-3xl bg-accent/30 border border-primary/10 space-y-4">
+          <label className="flex items-center gap-3 cursor-pointer">
+             <input 
+               type="checkbox" 
+               className="w-5 h-5 rounded-md border-2 border-primary text-primary focus:ring-primary"
+               checked={config.isGift}
+               onChange={(e) => handleChange("isGift", e.target.checked)}
+             />
+             <span className="font-black text-sm text-[#4a3a35]">This is a special gift 🎁</span>
+          </label>
+          
+          <AnimatePresence>
+            {config.isGift && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <textarea 
+                  placeholder="Recipient Name & Your Congratulation Message..."
+                  className="w-full p-4 bg-white border border-border rounded-xl text-xs font-medium focus:ring-2 focus:ring-primary/20 outline-none"
+                  value={config.giftMessage}
+                  onChange={(e) => handleChange("giftMessage", e.target.value)}
+                />
+                <p className="text-[9px] font-bold text-primary mt-2 uppercase tracking-widest">Free complimentary card included</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+      </div>
       
       <div className="pt-4 border-t border-border/50">
         <div className="flex justify-between items-center mb-6">
@@ -139,7 +173,8 @@ export function CustomizerPanel({ onUpdate }: CustomizerPanelProps) {
             const eyeName = EYE_STYLES.find(e => e.id === config.eyeStyle)?.name || config.eyeStyle;
             const accName = ACCESSORIES.find(a => a.id === config.accessory)?.name || config.accessory;
             
-            const message = `Halo Kak dip.crochet! Aku ingin ADOPSI boneka custom buatan tangan:\n\n- Warna: ${colorName}\n- Mata: ${eyeName}\n- Aksesoris: ${accName}\n- Nama: ${config.name || "Belum ada"}\n\nKira-kira kapan bisa selesai dikirim ya?`;
+            const giftNote = config.isGift ? `\n🎁 UNTUK HADIAH: ${config.giftMessage}` : "";
+            const message = `Halo Kak dip.crochet! Aku ingin ADOPSI boneka custom buatan tangan:\n\n- Warna: ${colorName}\n- Mata: ${eyeName}\n- Aksesoris: ${accName}\n- Nama: ${config.name || "Belum ada"}${giftNote}\n\nKira-kira kapan bisa selesai dikirim ya?`;
             
             window.open(getWhatsAppLink(message), "_blank");
           }}

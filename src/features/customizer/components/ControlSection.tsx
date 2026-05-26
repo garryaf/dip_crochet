@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Info, Heart } from "lucide-react";
-import { CustomizerPanel } from "@/components/ui/CustomizerPanel";
+import { CustomizerPanel } from "./CustomizerPanel";
 
 interface ControlSectionProps {
   onUpdate: (config: any) => void;

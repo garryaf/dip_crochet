@@ -1,0 +1,437 @@
+// ============================================
+// Cotcret (dip.crochet) — Database Schema
+// ============================================
+// Enterprise-grade e-commerce schema for handmade crochet platform.
+// Supports: products, orders, customers, reviews, CMS content.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// PRODUCT DOMAIN
+// ============================================
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String   @db.Text
+  story       String?  @db.Text
+  personality String?
+  price       Int      // Price in IDR (no decimals needed)
+  comparePrice Int?    // Original price for showing discounts
+  color       String   // Primary color hex
+  image       String?  // Main image URL
+  images      String[] // Gallery images
+  category    ProductCategory @default(CHARACTER)
+  status      ProductStatus   @default(ACTIVE)
+  stock       Int      @default(0)
+  featured    Boolean  @default(false)
+  sortOrder   Int      @default(0)
+
+  // SEO
+  metaTitle       String?
+  metaDescription String? @db.Text
+  
+  // Relations
+  orderItems  OrderItem[]
+  reviews     Review[]
+  cartItems   CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, featured])
+  @@index([category, status])
+  @@index([slug])
+}
+
+enum ProductCategory {
+  CHARACTER
+  GRADUATION
+  BUNDLE
+  CUSTOM
+  ACCESSORY
+}
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  OUT_OF_STOCK
+  ARCHIVED
+}
+
+// ============================================
+// COLOR & VARIANT DOMAIN
+// ============================================
+
+model ColorOption {
+  id    String @id @default(cuid())
+  name  String
+  value String // Hex color code
+  sortOrder Int @default(0)
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@index([active, sortOrder])
+}
+
+model EyeStyle {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+  active Boolean @default(true)
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+}
+
+model Accessory {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+  price Int @default(0) // Additional price
+  active Boolean @default(true)
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+}
+
+// ============================================
+// CUSTOMER DOMAIN
+// ============================================
+
+model Customer {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  phone     String?
+  avatar    String?
+  role      CustomerRole @default(CUSTOMER)
+
+  // Relations
+  orders    Order[]
+  reviews   Review[]
+  cart      Cart?
+  addresses Address[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+enum CustomerRole {
+  CUSTOMER
+  ADMIN
+  ARTISAN
+}
+
+model Address {
+  id         String  @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  label      String  // "Home", "Office", etc.
+  street     String
+  city       String
+  province   String
+  postalCode String
+  phone      String?
+  isDefault  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([customerId])
+}
+
+// ============================================
+// ORDER DOMAIN
+// ============================================
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique // Human-readable: DPC-20240101-001
+  customerId  String?
+  customer    Customer?   @relation(fields: [customerId], references: [id])
+  
+  // Customer info (denormalized for orders without account)
+  customerName  String
+  customerPhone String
+  customerEmail String?
+
+  status      OrderStatus @default(PENDING)
+  
+  // Pricing
+  subtotal    Int
+  shippingCost Int @default(0)
+  discount    Int @default(0)
+  total       Int
+
+  // Shipping
+  shippingMethod String?
+  trackingNumber String?
+  shippingAddress String? @db.Text
+
+  // Gift
+  isGift      Boolean @default(false)
+  giftMessage String? @db.Text
+
+  // Custom order details
+  customNotes String? @db.Text
+
+  // Payment
+  paymentMethod String?
+  paymentProof  String? // URL to payment proof image
+  paidAt        DateTime?
+
+  // Timestamps
+  confirmedAt   DateTime?
+  craftingAt    DateTime?
+  shippedAt     DateTime?
+  deliveredAt   DateTime?
+  cancelledAt   DateTime?
+
+  // Attribution
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+
+  // Relations
+  items       OrderItem[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([customerId])
+  @@index([orderNumber])
+  @@index([createdAt])
+}
+
+enum OrderStatus {
+  PENDING       // Order received, awaiting payment
+  CONFIRMED     // Payment confirmed
+  CRAFTING      // Being handmade
+  QUALITY_CHECK // Quality inspection
+  SHIPPED       // Sent via courier
+  DELIVERED     // Received by customer
+  CANCELLED     // Cancelled
+  REFUNDED      // Refunded
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+
+  // Denormalized product info (preserved at time of order)
+  productName String
+  price       Int
+  quantity    Int     @default(1)
+  
+  // Customization
+  color       String?
+  eyeStyle    String?
+  accessory   String?
+  customName  String? // Name embroidered on the doll
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+}
+
+// ============================================
+// CART DOMAIN
+// ============================================
+
+model Cart {
+  id         String   @id @default(cuid())
+  customerId String?  @unique
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  sessionId  String?  @unique // For anonymous carts
+
+  items      CartItem[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([sessionId])
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity  Int     @default(1)
+  
+  // Customization options
+  color     String?
+  eyeStyle  String?
+  accessory String?
+  customName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, productId, color, eyeStyle, accessory])
+  @@index([cartId])
+}
+
+// ============================================
+// REVIEW DOMAIN
+// ============================================
+
+model Review {
+  id         String  @id @default(cuid())
+  productId  String
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  // Review content
+  rating     Int     // 1-5
+  title      String?
+  content    String  @db.Text
+  authorName String  // Display name
+  location   String? // City
+
+  // Media
+  images     String[]
+
+  // Moderation
+  status     ReviewStatus @default(PENDING)
+  featured   Boolean @default(false)
+
+  createdAt  DateTime @default(now())
+
+  @@index([productId, status])
+  @@index([featured])
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ============================================
+// CMS CONTENT DOMAIN
+// ============================================
+
+model ContentBlock {
+  id        String @id @default(cuid())
+  key       String @unique // e.g., "hero_title", "hero_subtitle", "about_text"
+  type      ContentType @default(TEXT)
+  value     String @db.Text
+  metadata  Json?  // Additional structured data
+
+  updatedAt DateTime @updatedAt
+  updatedBy String?  // Admin who last updated
+
+  @@index([key])
+}
+
+enum ContentType {
+  TEXT
+  RICH_TEXT
+  IMAGE
+  VIDEO
+  JSON
+}
+
+model FAQ {
+  id        String  @id @default(cuid())
+  question  String
+  answer    String  @db.Text
+  category  String  @default("general")
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+model Testimonial {
+  id           String  @id @default(cuid())
+  authorName   String
+  location     String?
+  content      String  @db.Text
+  rating       Int     @default(5)
+  productName  String?
+  avatar       String?
+  featured     Boolean @default(false)
+  active       Boolean @default(true)
+  sortOrder    Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([active, featured])
+}
+
+model Banner {
+  id        String  @id @default(cuid())
+  title     String
+  subtitle  String?
+  image     String?
+  link      String?
+  position  String  // "hero", "promo", "announcement"
+  active    Boolean @default(true)
+  startDate DateTime?
+  endDate   DateTime?
+  sortOrder Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position, active])
+}
+
+// ============================================
+// NEWSLETTER & LEADS
+// ============================================
+
+model NewsletterSubscriber {
+  id        String @id @default(cuid())
+  email     String @unique
+  name      String?
+  source    String? // Where they signed up
+  active    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@index([active])
+}
+
+// ============================================
+// ANALYTICS (Server-side event log)
+// ============================================
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  event     String
+  category  String?
+  label     String?
+  value     Int?
+  sessionId String?
+  userId    String?
+  metadata  Json?
+  
+  createdAt DateTime @default(now())
+
+  @@index([event, createdAt])
+  @@index([sessionId])
+}

@@ -25,6 +25,8 @@ interface ProductDetailClientProps {
 export default function ProductDetailClient({ id }: ProductDetailClientProps) {
   const character = CHARACTERS.find((c) => c.id === id);
   const [selectedColor, setSelectedColor] = useState(character?.color || COLORS[0].value);
+  const [isGift, setIsGift] = useState(false);
+  const [giftMessage, setGiftMessage] = useState("");
 
   if (!character) {
     return (
@@ -137,12 +139,44 @@ export default function ProductDetailClient({ id }: ProductDetailClientProps) {
             </div>
           </div>
 
+          <div className="p-8 rounded-[2.5rem] bg-accent/30 border border-primary/10 space-y-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                 <input 
+                   type="checkbox" 
+                   className="w-5 h-5 rounded-md border-2 border-primary text-primary focus:ring-primary"
+                   checked={isGift}
+                   onChange={(e) => setIsGift(e.target.checked)}
+                 />
+                 <span className="font-black text-sm text-[#4a3a35]">This is a special gift 🎁</span>
+              </label>
+              
+              <AnimatePresence>
+                {isGift && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <textarea 
+                      placeholder="Recipient Name & Your Congratulation Message..."
+                      className="w-full p-5 bg-white border border-border rounded-2xl text-sm font-medium focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
+                      value={giftMessage}
+                      onChange={(e) => setGiftMessage(e.target.value)}
+                    />
+                    <p className="text-[10px] font-black text-primary mt-3 uppercase tracking-[0.2em]">Free complimentary card included</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+          </div>
+
           <div className="flex flex-col gap-4 mt-4">
             <button 
               onClick={() => {
                 const colorObj = COLORS.find(c => c.value === selectedColor);
                 const colorName = colorObj?.name || selectedColor;
-                const message = `Halo Kak dip.crochet! Aku ingin ADOPSI si lucu ${character.name.split(' — ')[0]} dengan warna ${colorName}.\n\nBisa diproses sekarang Kak?`;
+                const giftNote = isGift ? `\n🎁 UNTUK HADIAH: ${giftMessage}` : "";
+                const message = `Halo Kak dip.crochet! Aku ingin ADOPSI si lucu ${character.name.split(' — ')[0]} dengan warna ${colorName}.${giftNote}\n\nBisa diproses sekarang Kak?`;
                 window.open(getWhatsAppLink(message), "_blank");
               }}
               className="w-full py-6 bg-primary text-white font-black text-xl rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary/90 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest"

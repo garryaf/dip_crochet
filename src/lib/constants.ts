@@ -1,7 +1,7 @@
 export const BRAND = {
   name: "dip.crochet",
   tagline: "Handmade with Soul ✦ Bekasi",
-  whatsapp: "6281234567890", // Replace with actual WhatsApp number
+  whatsapp: "6281382861049", 
   instagram: "https://www.instagram.com/dip_crochet/",
   tiktok: "https://www.tiktok.com/@dip.crochet_",
   googleMaps: "https://maps.app.goo.gl/whTVfq1q1CXneE3A7",
@@ -40,6 +40,17 @@ export const CHARACTERS = [
     story: "Pip believes every day is an adventure. Even on rainy days, Pip’s bright yellow stitches remind you that the sun is always just behind the clouds.",
     image: null,
   },
+];
+
+export const BUNDLES = [
+  {
+    id: "bestie-bundle",
+    name: "Besties Bundle",
+    price: 180000,
+    items: ["2x Custom Souls", "2x Heart Name Tags", "1x Gift Box"],
+    saving: "Save IDR 10.000",
+    description: "One for you, one for your favorite person. Forever connected by the same thread."
+  }
 ];
 
 export const COLORS = [
