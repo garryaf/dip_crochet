@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { Heart, Sparkles, ArrowLeft } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ interface Character {
   personality: string;
   story: string;
   image: string | null;
+  category?: string;
 }
 
 interface ProductGridProps {
@@ -38,13 +40,23 @@ export default function ProductGrid({ characters }: ProductGridProps) {
                 className="relative aspect-square flex items-center justify-center overflow-hidden m-4 mb-0 rounded-[2.5rem]"
                 style={{ background: `${char.color}11` }}
               >
-                <div
-                  className="text-8xl font-black opacity-10 select-none"
-                  style={{ color: char.color }}
-                  aria-hidden="true"
-                >
-                  {char.name[0]}
-                </div>
+                {char.image ? (
+                  <Image
+                    src={char.image}
+                    alt={char.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  />
+                ) : (
+                  <div
+                    className="text-8xl font-black opacity-10 select-none"
+                    style={{ color: char.color }}
+                    aria-hidden="true"
+                  >
+                    {char.name[0]}
+                  </div>
+                )}
 
                 <div className="absolute inset-0 bg-gradient-to-t from-[#4a3a35]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 

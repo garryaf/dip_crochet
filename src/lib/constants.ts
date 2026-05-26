@@ -1,7 +1,7 @@
 export const BRAND = {
   name: "dip.crochet",
   tagline: "Handmade with Soul ✦ Bekasi",
-  whatsapp: "6281382861049", 
+  whatsapp: "6281382861049",
   instagram: "https://www.instagram.com/dip_crochet/",
   tiktok: "https://www.tiktok.com/@dip.crochet_",
   googleMaps: "https://maps.app.goo.gl/whTVfq1q1CXneE3A7",
@@ -12,7 +12,12 @@ export function getWhatsAppLink(message: string) {
   return `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(message)}`;
 }
 
+// ============================================
+// PRODUCTS — Full catalog with real images
+// ============================================
+
 export const CHARACTERS = [
+  // === CHARACTER SERIES (Dolls) ===
   {
     id: "momo-bunny",
     name: "Momo — Secret-Keeper Bunny",
@@ -20,7 +25,8 @@ export const CHARACTERS = [
     color: "#ff8fb1",
     personality: "Empathetic, Quiet, Loyal",
     story: "Stitched with extra-soft milk cotton to handle late-night hugs and whispered secrets. Momo is the perfect companion for those who need a silent, loyal listener.",
-    image: null,
+    image: "/images/products/doll-bunny-pink-01.jpg",
+    category: "CHARACTER",
   },
   {
     id: "kopi-bear",
@@ -28,8 +34,9 @@ export const CHARACTERS = [
     price: 95000,
     color: "#4a3a35",
     personality: "Calm, Protective, Warm",
-    story: "Made with deep chocolate yarn, Kopi was born to watch over your dreams. He’s a bit shy but has the warmest heart (and the softest ears) in the workshop.",
-    image: null,
+    story: "Made with deep chocolate yarn, Kopi was born to watch over your dreams. He's a bit shy but has the warmest heart (and the softest ears) in the workshop.",
+    image: "/images/products/doll-bear-brown-01.jpg",
+    category: "CHARACTER",
   },
   {
     id: "pip-duck",
@@ -37,8 +44,232 @@ export const CHARACTERS = [
     price: 85000,
     color: "#ffca3a",
     personality: "Cheerful, Adventurous, Brave",
-    story: "Pip believes every day is an adventure. Even on rainy days, Pip’s bright yellow stitches remind you that the sun is always just behind the clouds.",
-    image: null,
+    story: "Pip believes every day is an adventure. Even on rainy days, Pip's bright yellow stitches remind you that the sun is always just behind the clouds.",
+    image: "/images/products/keychain-duck-01.jpg",
+    category: "CHARACTER",
+  },
+  {
+    id: "nana-elephant",
+    name: "Nana — The Gentle Giant",
+    price: 120000,
+    color: "#B4C7D4",
+    personality: "Wise, Patient, Nurturing",
+    story: "Nana remembers everything — every birthday, every promise, every little moment that matters. She's the friend who never forgets.",
+    image: "/images/products/doll-elephant-01.jpg",
+    category: "CHARACTER",
+  },
+  {
+    id: "uni-unicorn",
+    name: "Uni — The Dream Weaver",
+    price: 135000,
+    color: "#E8B4D8",
+    personality: "Magical, Creative, Inspiring",
+    story: "Born from a rainbow of pastel yarns, Uni carries a little bit of magic in every stitch. She reminds you that dreams are worth chasing.",
+    image: "/images/products/doll-unicorn-01.jpg",
+    category: "CHARACTER",
+  },
+  {
+    id: "dino-rex",
+    name: "Rex — The Tiny Roar",
+    price: 110000,
+    color: "#A4BE7B",
+    personality: "Playful, Fierce, Cuddly",
+    story: "Don't let his tiny arms fool you — Rex gives the biggest hugs. He's proof that even the fiercest creatures have the softest hearts.",
+    image: "/images/products/doll-dinosaur-01.jpg",
+    category: "CHARACTER",
+  },
+  // === KEYCHAIN SERIES ===
+  {
+    id: "keychain-bear",
+    name: "Mini Kopi — Bear Keychain",
+    price: 45000,
+    color: "#8B6F5C",
+    personality: "Portable, Cute, Everyday",
+    story: "Take Kopi everywhere you go. This mini version clips onto your bag, keys, or pencil case — a tiny guardian for your daily adventures.",
+    image: "/images/products/keychain-bear-01.jpg",
+    category: "KEYCHAIN",
+  },
+  {
+    id: "keychain-bunny",
+    name: "Mini Momo — Bunny Keychain",
+    price: 45000,
+    color: "#ff8fb1",
+    personality: "Pocket-sized, Sweet, Loyal",
+    story: "A pocket-sized Momo that goes wherever you go. Perfect for adding a touch of handmade warmth to your everyday carry.",
+    image: "/images/products/keychain-bunny-01.jpg",
+    category: "KEYCHAIN",
+  },
+  {
+    id: "keychain-cat",
+    name: "Michi — Cat Keychain",
+    price: 45000,
+    color: "#F5C6AA",
+    personality: "Independent, Graceful, Mysterious",
+    story: "Michi is the cat who chose you. Elegant, a little mysterious, and always landing on her feet — just like you.",
+    image: "/images/products/keychain-cat-01.jpg",
+    category: "KEYCHAIN",
+  },
+  {
+    id: "keychain-frog",
+    name: "Kepo — Frog Keychain",
+    price: 45000,
+    color: "#7BC47F",
+    personality: "Curious, Cheerful, Lucky",
+    story: "Kepo is always curious about what's next. Carry this little lucky charm and let every day be a new lily pad to explore.",
+    image: "/images/products/keychain-frog-01.jpg",
+    category: "KEYCHAIN",
+  },
+  {
+    id: "keychain-penguin",
+    name: "Pingu — Penguin Keychain",
+    price: 45000,
+    color: "#2D3436",
+    personality: "Cool, Loyal, Adorable",
+    story: "Pingu waddles through life with unshakeable confidence. A reminder that being yourself is always the coolest thing.",
+    image: "/images/products/keychain-penguin-01.jpg",
+    category: "KEYCHAIN",
+  },
+  {
+    id: "keychain-whale",
+    name: "Biru — Whale Keychain",
+    price: 50000,
+    color: "#74B9FF",
+    personality: "Calm, Deep, Dreamy",
+    story: "Biru carries the calm of the ocean in every stitch. A gentle reminder to breathe deep and go with the flow.",
+    image: "/images/products/keychain-whale-01.jpg",
+    category: "KEYCHAIN",
+  },
+  // === BOUQUET SERIES ===
+  {
+    id: "bouquet-rose",
+    name: "Eternal Rose Bouquet",
+    price: 175000,
+    color: "#E74C3C",
+    personality: "Romantic, Timeless, Elegant",
+    story: "Roses that never wilt. Each petal is hand-crocheted with premium cotton — a forever bouquet for someone who deserves forever love.",
+    image: "/images/products/bouquet-rose-01.jpg",
+    category: "BOUQUET",
+  },
+  {
+    id: "bouquet-tulip",
+    name: "Spring Tulip Bouquet",
+    price: 155000,
+    color: "#FF6B81",
+    personality: "Fresh, Joyful, Vibrant",
+    story: "Bring spring into any room, any season. These hand-stitched tulips carry the energy of new beginnings and fresh starts.",
+    image: "/images/products/bouquet-tulip-01.jpg",
+    category: "BOUQUET",
+  },
+  {
+    id: "bouquet-sunflower",
+    name: "Sunshine Sunflower Bouquet",
+    price: 165000,
+    color: "#F9CA24",
+    personality: "Bright, Warm, Uplifting",
+    story: "Like a burst of sunshine you can hold. These sunflowers are crocheted to brighten even the cloudiest days.",
+    image: "/images/products/bouquet-sunflower-01.jpg",
+    category: "BOUQUET",
+  },
+  {
+    id: "bouquet-mixed",
+    name: "Garden Party Mixed Bouquet",
+    price: 195000,
+    color: "#A29BFE",
+    personality: "Colorful, Festive, Unique",
+    story: "A celebration of color and craft. This mixed bouquet combines roses, daisies, and wildflowers — no two arrangements are exactly alike.",
+    image: "/images/products/bouquet-mixed-01.jpg",
+    category: "BOUQUET",
+  },
+  {
+    id: "bouquet-daisy",
+    name: "Daisy Dream Bouquet",
+    price: 145000,
+    color: "#FFEAA7",
+    personality: "Simple, Pure, Happy",
+    story: "Simple, cheerful, and full of good vibes. Daisies represent innocence and new beginnings — perfect for any occasion.",
+    image: "/images/products/bouquet-daisy-01.jpg",
+    category: "BOUQUET",
+  },
+  {
+    id: "bouquet-lily",
+    name: "Lily Elegance Bouquet",
+    price: 185000,
+    color: "#DFE6E9",
+    personality: "Sophisticated, Graceful, Pure",
+    story: "Lilies symbolize purity and devotion. This elegant arrangement is perfect for weddings, anniversaries, or simply saying 'I appreciate you.'",
+    image: "/images/products/bouquet-lily-01.jpg",
+    category: "BOUQUET",
+  },
+  {
+    id: "bouquet-premium",
+    name: "Grand Luxe Bouquet",
+    price: 250000,
+    color: "#6C5CE7",
+    personality: "Luxurious, Statement, Premium",
+    story: "Our most extravagant creation. A grand arrangement of mixed crochet flowers in a premium gift box — for moments that deserve the extraordinary.",
+    image: "/images/products/bouquet-premium-01.jpg",
+    category: "BOUQUET",
+  },
+  // === SPECIAL EDITIONS ===
+  {
+    id: "graduation-doll",
+    name: "Graduation Soul — Custom",
+    price: 120000,
+    color: "#2D3436",
+    personality: "Proud, Memorable, Personal",
+    story: "Celebrate their achievement with a one-of-a-kind graduation companion. Comes with custom toga, diploma, and personalized name tag.",
+    image: "/images/products/doll-graduation-01.jpg",
+    category: "GRADUATION",
+  },
+  {
+    id: "couple-set",
+    name: "Soulmate Duo — Couple Set",
+    price: 180000,
+    color: "#FD79A8",
+    personality: "Connected, Romantic, Matching",
+    story: "Two souls, one thread. This matching pair is perfect for couples, best friends, or anyone who shares an unbreakable bond.",
+    image: "/images/products/doll-couple-01.jpg",
+    category: "BUNDLE",
+  },
+  {
+    id: "gift-box-premium",
+    name: "Premium Gift Box Set",
+    price: 210000,
+    color: "#FDCB6E",
+    personality: "Complete, Thoughtful, Ready-to-gift",
+    story: "Everything wrapped and ready. Includes one custom doll, name tag, gift card, and premium packaging — the ultimate handmade gift experience.",
+    image: "/images/products/gift-box-01.jpg",
+    category: "BUNDLE",
+  },
+  {
+    id: "keychain-set",
+    name: "Bestie Keychain Set (3pcs)",
+    price: 120000,
+    color: "#00CEC9",
+    personality: "Friendship, Matching, Fun",
+    story: "One for you, one for your bestie, one for the group chat admin. Three matching keychains that celebrate your squad.",
+    image: "/images/products/keychain-set-01.jpg",
+    category: "BUNDLE",
+  },
+  {
+    id: "mini-collection",
+    name: "Mini Soul Collection (5pcs)",
+    price: 200000,
+    color: "#E17055",
+    personality: "Collector, Variety, Value",
+    story: "Start your collection with five mini souls. Each one is unique, hand-picked from our workshop favorites. The perfect desk companions.",
+    image: "/images/products/doll-mini-01.jpg",
+    category: "BUNDLE",
+  },
+  {
+    id: "custom-doll",
+    name: "Full Custom Soul — Your Design",
+    price: 150000,
+    color: "#0984E3",
+    personality: "Unique, Personal, One-of-a-kind",
+    story: "Your imagination, our hands. Tell us your dream companion and we'll bring it to life stitch by stitch. Fully custom color, style, and accessories.",
+    image: "/images/products/doll-custom-01.jpg",
+    category: "CUSTOM",
   },
 ];
 
@@ -49,8 +280,16 @@ export const BUNDLES = [
     price: 180000,
     items: ["2x Custom Souls", "2x Heart Name Tags", "1x Gift Box"],
     saving: "Save IDR 10.000",
-    description: "One for you, one for your favorite person. Forever connected by the same thread."
-  }
+    description: "One for you, one for your favorite person. Forever connected by the same thread.",
+  },
+  {
+    id: "graduation-bundle",
+    name: "Graduation Bundle",
+    price: 145000,
+    items: ["1x Graduation Soul", "1x Toga + Diploma", "1x Gift Box + Card"],
+    saving: "Save IDR 15.000",
+    description: "The complete graduation gift. Custom name, major, and year embroidered with love.",
+  },
 ];
 
 export const COLORS = [
@@ -60,11 +299,14 @@ export const COLORS = [
   { name: "Matcha Green", value: "#A4BE7B" },
   { name: "Sky Blue", value: "#B4E4FF" },
   { name: "Cotton White", value: "#ffffff" },
+  { name: "Lavender", value: "#E8B4D8" },
+  { name: "Peach", value: "#F5C6AA" },
 ];
 
 export const EYE_STYLES = [
   { id: "cute", name: "Innocent (Dot)" },
   { id: "sleepy", name: "Dreamy (Closed)" },
+  { id: "happy", name: "Happy (Arc)" },
   { id: "wink", name: "Playful (Wink)" },
 ];
 
@@ -72,5 +314,20 @@ export const ACCESSORIES = [
   { id: "none", name: "No Accessories" },
   { id: "scarf", name: "Cozy Wool Scarf" },
   { id: "ribbon", name: "Silk Bow Ribbon" },
+  { id: "hat", name: "Mini Bucket Hat" },
   { id: "grad-cap", name: "Graduation Cap" },
+];
+
+// ============================================
+// PRODUCT CATEGORIES for filtering
+// ============================================
+
+export const PRODUCT_CATEGORIES = [
+  { id: "all", name: "All Products", count: CHARACTERS.length },
+  { id: "CHARACTER", name: "Character Dolls", count: CHARACTERS.filter(c => c.category === "CHARACTER").length },
+  { id: "KEYCHAIN", name: "Keychains", count: CHARACTERS.filter(c => c.category === "KEYCHAIN").length },
+  { id: "BOUQUET", name: "Crochet Bouquets", count: CHARACTERS.filter(c => c.category === "BOUQUET").length },
+  { id: "BUNDLE", name: "Bundles & Sets", count: CHARACTERS.filter(c => c.category === "BUNDLE").length },
+  { id: "GRADUATION", name: "Graduation", count: CHARACTERS.filter(c => c.category === "GRADUATION").length },
+  { id: "CUSTOM", name: "Custom Order", count: CHARACTERS.filter(c => c.category === "CUSTOM").length },
 ];

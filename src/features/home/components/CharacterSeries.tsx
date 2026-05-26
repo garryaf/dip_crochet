@@ -60,6 +60,7 @@ export default function CharacterSeries() {
                     src={char.image} 
                     alt={char.name}
                     fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
                   />
                 ) : (
