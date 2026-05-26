@@ -4,7 +4,7 @@
 # Multi-stage build for minimal production image.
 # Final image: ~150MB (Node.js Alpine + Next.js standalone)
 
-# Stage 1: Dependencies
+# Stage 1: Dependencies (ALL deps needed for build)
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -13,7 +13,8 @@ COPY package.json package-lock.json ./
 COPY prisma ./prisma/
 COPY prisma.config.ts ./
 
-RUN npm ci --omit=dev && npx prisma generate
+# Install ALL dependencies (including devDeps needed for build: tailwind, eslint, etc.)
+RUN npm ci && npx prisma generate
 
 # Stage 2: Build
 FROM node:20-alpine AS builder
