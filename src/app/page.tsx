@@ -10,6 +10,7 @@ import Reviews from "@/features/home/components/Reviews";
 import BundleSection from "@/features/home/components/BundleSection";
 import FaqSection from "@/features/home/components/FaqSection";
 import Location from "@/features/home/components/Location";
+import IntroWrapper from "@/features/intro/components/IntroWrapper";
 import { siteConfig } from "@/config/site";
 import {
   generateOrganizationSchema,
@@ -86,6 +87,9 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden selection:bg-primary/20">
+      {/* Premium 3D Intro Experience — client-only overlay */}
+      <IntroWrapper />
+
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
