@@ -3,8 +3,9 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Heart, Sparkles, MessageCircle, Clock, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Heart, Sparkles, MessageCircle, Clock, ShieldCheck, RotateCcw } from "lucide-react";
 import BrandLogo from "@/components/ui/BrandLogo";
 import { CHARACTERS, COLORS } from "@/lib/constants";
 import { formatPrice, cn } from "@/lib/utils";
@@ -12,7 +13,7 @@ import { getWhatsAppLink } from "@/lib/constants";
 import CrossSell from "@/features/product/components/CrossSell";
 import Footer from "@/shared/components/layout/Footer";
 
-// Lazy load the 3D viewer — do NOT SSR
+// Lazy load the 3D viewer — only for CHARACTER category
 const PlushViewer = dynamic(() => import("@/components/three/PlushViewer"), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-accent/20 animate-pulse rounded-[3rem]" />,
@@ -27,6 +28,7 @@ export default function ProductDetailClient({ id }: ProductDetailClientProps) {
   const [selectedColor, setSelectedColor] = useState(character?.color || COLORS[0].value);
   const [isGift, setIsGift] = useState(false);
   const [giftMessage, setGiftMessage] = useState("");
+  const [show3D, setShow3D] = useState(false);
 
   if (!character) {
     return (
@@ -38,6 +40,9 @@ export default function ProductDetailClient({ id }: ProductDetailClientProps) {
       </div>
     );
   }
+
+  // Only CHARACTER category dolls have 3D preview capability
+  const has3DPreview = character.category === "CHARACTER";
 
   return (
     <div className="min-h-screen bg-[#fffbf9] flex flex-col">
@@ -51,28 +56,85 @@ export default function ProductDetailClient({ id }: ProductDetailClientProps) {
       </nav>
 
       <main className="flex-grow max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-16 lg:gap-24 items-start texture-bg">
-        {/* Left Side: 3D Preview */}
+        {/* Left Side: Product Image / 3D Preview */}
         <section className="flex flex-col gap-6 sticky top-32">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative aspect-square bg-white rounded-[3.5rem] shadow-2xl border-4 border-white overflow-hidden flex items-center justify-center p-8 group"
+            className="relative aspect-square bg-white rounded-[3.5rem] shadow-2xl border-4 border-white overflow-hidden flex items-center justify-center group"
           >
-            <div className="absolute top-8 left-8 flex items-center gap-2 px-4 py-2 bg-accent rounded-full text-primary font-black text-[10px] uppercase tracking-widest shadow-sm z-10">
-              <Sparkles className="w-3 h-3" />
-              Living Preview
-            </div>
-            
-            <PlushViewer color={selectedColor} />
+            {/* Toggle badge */}
+            {has3DPreview && (
+              <button
+                onClick={() => setShow3D(!show3D)}
+                className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur rounded-full text-primary font-black text-[10px] uppercase tracking-widest shadow-md z-20 hover:bg-primary hover:text-white transition-colors"
+              >
+                {show3D ? (
+                  <>
+                    <Image className="w-3 h-3" src="" alt="" width={12} height={12} />
+                    Photo
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="w-3 h-3" />
+                    3D View
+                  </>
+                )}
+              </button>
+            )}
 
-            <motion.div
-              className="absolute bottom-12 left-1/2 -translate-x-1/2 px-6 py-2 bg-white/80 backdrop-blur shadow-lg border border-primary/20 rounded-full text-primary font-black text-xs animate-fade-in"
-              animate={{ y: [0, -5, 0] }}
-              transition={{ repeat: Infinity, duration: 3 }}
-            >
-              TOUCH TO EXPLORE
-            </motion.div>
+            {/* Category badge for non-3D products */}
+            {!has3DPreview && (
+              <div className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 bg-accent rounded-full text-primary font-black text-[10px] uppercase tracking-widest shadow-sm z-10">
+                <Sparkles className="w-3 h-3" />
+                {character.category === "BOUQUET" ? "Handmade Bouquet" : 
+                 character.category === "KEYCHAIN" ? "Mini Keychain" :
+                 character.category === "BUNDLE" ? "Special Bundle" :
+                 character.category === "GRADUATION" ? "Graduation Special" :
+                 character.category === "CUSTOM" ? "Custom Order" : "Handcrafted"}
+              </div>
+            )}
+
+            {/* Main content: Image or 3D */}
+            {show3D && has3DPreview ? (
+              <div className="w-full h-full p-4">
+                <PlushViewer color={selectedColor} />
+                <motion.div
+                  className="absolute bottom-8 left-1/2 -translate-x-1/2 px-5 py-2 bg-white/80 backdrop-blur shadow-lg border border-primary/20 rounded-full text-primary font-black text-[10px] uppercase tracking-widest"
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ repeat: Infinity, duration: 3 }}
+                >
+                  Drag to Rotate
+                </motion.div>
+              </div>
+            ) : (
+              character.image ? (
+                <Image
+                  src={character.image}
+                  alt={character.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  priority
+                />
+              ) : (
+                <div className="text-[120px] font-black opacity-10 select-none" style={{ color: character.color }}>
+                  {character.name[0]}
+                </div>
+              )
+            )}
           </motion.div>
+
+          {/* 3D toggle hint for CHARACTER products */}
+          {has3DPreview && !show3D && (
+            <button
+              onClick={() => setShow3D(true)}
+              className="flex items-center justify-center gap-2 py-3 bg-white border border-border/50 rounded-2xl text-sm font-bold text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Lihat dalam 3D
+            </button>
+          )}
 
           {/* Features */}
           <div className="grid grid-cols-2 gap-4">
@@ -93,21 +155,29 @@ export default function ProductDetailClient({ id }: ProductDetailClientProps) {
         <section className="flex flex-col gap-10">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.3em]">
-               Character Series No. 0{CHARACTERS.indexOf(character) + 1}
+               {character.category === "BOUQUET" ? "Bouquet Collection" :
+                character.category === "KEYCHAIN" ? "Keychain Series" :
+                character.category === "BUNDLE" ? "Special Bundle" :
+                character.category === "GRADUATION" ? "Graduation Collection" :
+                character.category === "CUSTOM" ? "Custom Order" :
+                `Character Series No. 0${CHARACTERS.filter(c => c.category === "CHARACTER").indexOf(character) + 1}`}
             </div>
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-[#4a3a35] leading-tight">{character.name}</h1>
             <div className="flex items-baseline gap-4 mt-2">
               <span className="text-4xl font-black text-primary">{formatPrice(character.price)}</span>
-              <span className="text-muted-foreground font-bold text-sm uppercase tracking-widest">Adoption Fee</span>
+              <span className="text-muted-foreground font-bold text-sm uppercase tracking-widest">
+                {character.category === "BOUQUET" ? "Bouquet Price" : "Adoption Fee"}
+              </span>
             </div>
           </div>
 
           <div className="space-y-6">
              <h3 className="text-lg font-black text-[#4a3a35] uppercase tracking-widest flex items-center gap-2">
-                <Heart className="w-5 h-5 fill-primary text-primary" /> Their Story
+                <Heart className="w-5 h-5 fill-primary text-primary" /> 
+                {character.category === "BOUQUET" ? "About This Bouquet" : "Their Story"}
              </h3>
              <p className="text-xl text-muted-foreground font-medium leading-relaxed italic">
-               "{character.story}"
+               &ldquo;{character.story}&rdquo;
              </p>
              <div className="flex flex-wrap gap-2 pt-2">
                 {character.personality.split(', ').map(p => (
@@ -118,27 +188,32 @@ export default function ProductDetailClient({ id }: ProductDetailClientProps) {
              </div>
           </div>
 
-          <div className="space-y-6 pt-6 border-t border-border/50">
-            <h3 className="text-lg font-black text-[#4a3a35]">Choose Yarn Color</h3>
-            <div className="flex flex-wrap gap-4">
-              {COLORS.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => setSelectedColor(color.value)}
-                  className={cn(
-                    "w-12 h-12 rounded-full border-4 transition-all scale-100 hover:scale-110 flex items-center justify-center relative",
-                    selectedColor === color.value ? "border-primary shadow-xl scale-105" : "border-white"
-                  )}
-                  style={{ backgroundColor: color.value }}
-                >
-                  {selectedColor === color.value && (
-                    <div className={cn("w-2 h-2 rounded-full", (color.value === "#ffffff" || color.value === "#B4E4FF") ? "bg-primary" : "bg-white")} />
-                  )}
-                </button>
-              ))}
+          {/* Color picker — only for CHARACTER and CUSTOM */}
+          {(character.category === "CHARACTER" || character.category === "CUSTOM") && (
+            <div className="space-y-6 pt-6 border-t border-border/50">
+              <h3 className="text-lg font-black text-[#4a3a35]">Choose Yarn Color</h3>
+              <div className="flex flex-wrap gap-4">
+                {COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => setSelectedColor(color.value)}
+                    className={cn(
+                      "w-12 h-12 rounded-full border-4 transition-all scale-100 hover:scale-110 flex items-center justify-center relative",
+                      selectedColor === color.value ? "border-primary shadow-xl scale-105" : "border-white"
+                    )}
+                    style={{ backgroundColor: color.value }}
+                    title={color.name}
+                  >
+                    {selectedColor === color.value && (
+                      <div className={cn("w-2 h-2 rounded-full", (color.value === "#ffffff" || color.value === "#B4E4FF") ? "bg-primary" : "bg-white")} />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
+          {/* Gift option */}
           <div className="p-8 rounded-[2.5rem] bg-accent/30 border border-primary/10 space-y-4">
               <label className="flex items-center gap-3 cursor-pointer">
                  <input 
@@ -170,18 +245,23 @@ export default function ProductDetailClient({ id }: ProductDetailClientProps) {
               </AnimatePresence>
           </div>
 
+          {/* CTA Buttons */}
           <div className="flex flex-col gap-4 mt-4">
             <button 
               onClick={() => {
                 const colorObj = COLORS.find(c => c.value === selectedColor);
                 const colorName = colorObj?.name || selectedColor;
                 const giftNote = isGift ? `\n🎁 UNTUK HADIAH: ${giftMessage}` : "";
-                const message = `Halo Kak dip.crochet! Aku ingin ADOPSI si lucu ${character.name.split(' — ')[0]} dengan warna ${colorName}.${giftNote}\n\nBisa diproses sekarang Kak?`;
+                const productLabel = character.name.split(' — ')[0];
+                const message = character.category === "BOUQUET" 
+                  ? `Halo Kak dip.crochet! Aku ingin pesan ${productLabel}.${giftNote}\n\nBisa diproses sekarang Kak?`
+                  : `Halo Kak dip.crochet! Aku ingin ADOPSI si lucu ${productLabel} dengan warna ${colorName}.${giftNote}\n\nBisa diproses sekarang Kak?`;
                 window.open(getWhatsAppLink(message), "_blank");
               }}
               className="w-full py-6 bg-primary text-white font-black text-xl rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary/90 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest"
             >
-              <Heart className="w-6 h-6 fill-white" /> Bawa Pulang Sekarang
+              <Heart className="w-6 h-6 fill-white" /> 
+              {character.category === "BOUQUET" ? "Pesan Sekarang" : "Bawa Pulang Sekarang"}
             </button>
             
             <div className="p-6 rounded-3xl bg-white border border-border/50 flex items-center gap-4 group cursor-pointer hover:bg-accent/30 transition-colors">
