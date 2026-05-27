@@ -1,189 +1,259 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef, Suspense } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import * as THREE from "three";
 import { ArrowRight, X } from "lucide-react";
-import IntroBackground from "./IntroBackground";
 import { useIntroState } from "../hooks/useIntroState";
 
 // ============================================
-// 3D ELEMENTS — All inline for reliability
+// MOUSE PARALLAX SYSTEM
 // ============================================
 
-function BouncyYarnBall({ position, color, size = 0.25, speed = 1 }: {
+function useMouseParallax() {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const smoothX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const smoothY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+
+  useEffect(() => {
+    const handleMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      mouseX.set(x);
+      mouseY.set(y);
+    };
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, [mouseX, mouseY]);
+
+  return { smoothX, smoothY };
+}
+
+// Camera that reacts to mouse
+function ParallaxCamera() {
+  const { camera } = useThree();
+  const mouseRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMove = (e: MouseEvent) => {
+      mouseRef.current.x = (e.clientX / window.innerWidth - 0.5) * 0.5;
+      mouseRef.current.y = (e.clientY / window.innerHeight - 0.5) * 0.3;
+    };
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, []);
+
+  useFrame(() => {
+    camera.position.x += (mouseRef.current.x - camera.position.x) * 0.02;
+    camera.position.y += (-mouseRef.current.y - camera.position.y) * 0.02;
+    camera.lookAt(0, 0, 0);
+  });
+
+  return null;
+}
+
+// ============================================
+// 3D ELEMENTS — Premium, slow, elegant
+// ============================================
+
+function SoftYarnBall({ position, color, size = 0.2, speed = 0.4, layer = 0 }: {
   position: [number, number, number];
   color: string;
   size?: number;
   speed?: number;
+  layer?: number;
 }) {
-  const ref = useRef<THREE.Mesh>(null);
-  const startY = position[1];
+  const ref = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (!ref.current) return;
     const t = state.clock.elapsedTime * speed;
-    ref.current.position.y = startY + Math.abs(Math.sin(t * 1.2)) * 0.5;
-    ref.current.rotation.x = t * 0.4;
-    ref.current.rotation.z = Math.sin(t * 0.6) * 0.3;
+    ref.current.position.y = position[1] + Math.sin(t) * 0.2;
+    ref.current.rotation.x = t * 0.15;
+    ref.current.rotation.z = Math.sin(t * 0.3) * 0.1;
   });
 
   return (
-    <mesh ref={ref} position={position}>
-      <sphereGeometry args={[size, 20, 20]} />
-      <meshStandardMaterial color={color} roughness={0.92} metalness={0} />
-    </mesh>
+    <Float speed={0.5} floatIntensity={0.1} rotationIntensity={0.05}>
+      <group ref={ref} position={position}>
+        {/* Main sphere */}
+        <mesh>
+          <sphereGeometry args={[size, 24, 24]} />
+          <meshStandardMaterial color={color} roughness={0.95} metalness={0} />
+        </mesh>
+        {/* Yarn wrap rings for texture */}
+        <mesh rotation={[Math.PI / 4, 0, 0]}>
+          <torusGeometry args={[size * 0.9, size * 0.08, 8, 32]} />
+          <meshStandardMaterial color={color} roughness={1} transparent opacity={0.6} />
+        </mesh>
+        <mesh rotation={[0, Math.PI / 3, Math.PI / 6]}>
+          <torusGeometry args={[size * 0.85, size * 0.06, 8, 32]} />
+          <meshStandardMaterial color={color} roughness={1} transparent opacity={0.4} />
+        </mesh>
+      </group>
+    </Float>
   );
 }
 
-function PulsatingHeart({ position, delay = 0 }: { position: [number, number, number]; delay?: number }) {
-  const ref = useRef<THREE.Group>(null);
-
-  useFrame((state) => {
-    if (!ref.current) return;
-    const t = state.clock.elapsedTime + delay;
-    ref.current.position.y = position[1] + Math.sin(t * 1.5) * 0.25;
-    ref.current.rotation.z = Math.sin(t * 0.8) * 0.2;
-    const s = 1 + Math.sin(t * 3) * 0.15;
-    ref.current.scale.setScalar(s);
-  });
-
-  return (
-    <group ref={ref} position={position} scale={0.8}>
-      <mesh position={[-0.07, 0.04, 0]}>
-        <sphereGeometry args={[0.09, 12, 12]} />
-        <meshStandardMaterial color="#ff6b9d" emissive="#ff6b9d" emissiveIntensity={0.3} roughness={0.5} />
-      </mesh>
-      <mesh position={[0.07, 0.04, 0]}>
-        <sphereGeometry args={[0.09, 12, 12]} />
-        <meshStandardMaterial color="#ff6b9d" emissive="#ff6b9d" emissiveIntensity={0.3} roughness={0.5} />
-      </mesh>
-      <mesh position={[0, -0.05, 0]} rotation={[0, 0, Math.PI / 4]}>
-        <boxGeometry args={[0.12, 0.12, 0.09]} />
-        <meshStandardMaterial color="#ff6b9d" emissive="#ff6b9d" emissiveIntensity={0.3} roughness={0.5} />
-      </mesh>
-    </group>
-  );
-}
-
-function TwinkleStar({ position, delay = 0 }: { position: [number, number, number]; delay?: number }) {
+function GlowOrb({ position, color, size = 0.08 }: {
+  position: [number, number, number];
+  color: string;
+  size?: number;
+}) {
   const ref = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     if (!ref.current) return;
-    const t = state.clock.elapsedTime + delay;
-    ref.current.rotation.y = t * 2;
-    ref.current.rotation.z = t * 1.5;
-    const s = 0.3 + Math.abs(Math.sin(t * 2.5)) * 0.7;
-    ref.current.scale.setScalar(s);
+    const t = state.clock.elapsedTime;
+    const s = size * (0.7 + Math.sin(t * 2 + position[0]) * 0.3);
+    ref.current.scale.setScalar(s / size);
+    ref.current.position.y = position[1] + Math.sin(t * 0.8 + position[0] * 2) * 0.15;
   });
 
   return (
     <mesh ref={ref} position={position}>
-      <octahedronGeometry args={[0.06, 0]} />
-      <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.8} roughness={0.1} metalness={0.5} />
+      <sphereGeometry args={[size, 12, 12]} />
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.6}
+        roughness={0.2}
+        transparent
+        opacity={0.7}
+      />
     </mesh>
   );
 }
 
-function CuteBunny() {
+function ElegantBunny() {
   const ref = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (!ref.current) return;
     const t = state.clock.elapsedTime;
-    ref.current.position.y = -0.8 + Math.sin(t * 1.8) * 0.15;
-    ref.current.rotation.y = Math.sin(t * 0.5) * 0.2;
-    ref.current.rotation.z = Math.sin(t * 0.9) * 0.05;
+    ref.current.position.y = -0.6 + Math.sin(t * 0.8) * 0.08;
+    ref.current.rotation.y = Math.sin(t * 0.3) * 0.1;
   });
 
   return (
-    <group ref={ref} position={[-2.2, -0.8, 1]} scale={0.55}>
-      <mesh><sphereGeometry args={[0.4, 16, 16]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
-      <mesh position={[0, 0.55, 0]}><sphereGeometry args={[0.33, 16, 16]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
-      <mesh position={[-0.12, 1.0, 0]} rotation={[0, 0, 0.1]}><capsuleGeometry args={[0.07, 0.28, 4, 8]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
-      <mesh position={[0.12, 1.0, 0]} rotation={[0, 0, -0.1]}><capsuleGeometry args={[0.07, 0.28, 4, 8]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
-      <mesh position={[-0.11, 0.6, 0.28]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#111" roughness={0.1} /></mesh>
-      <mesh position={[0.11, 0.6, 0.28]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#111" roughness={0.1} /></mesh>
-      <mesh position={[0, 0.47, 0.3]}><sphereGeometry args={[0.03, 8, 8]} /><meshStandardMaterial color="#ffb5c2" roughness={0.8} /></mesh>
-      <mesh position={[-0.2, 0.47, 0.22]}><sphereGeometry args={[0.06, 8, 8]} /><meshStandardMaterial color="#ff6b9d" transparent opacity={0.35} /></mesh>
-      <mesh position={[0.2, 0.47, 0.22]}><sphereGeometry args={[0.06, 8, 8]} /><meshStandardMaterial color="#ff6b9d" transparent opacity={0.35} /></mesh>
-    </group>
+    <Float speed={0.6} floatIntensity={0.08}>
+      <group ref={ref} position={[-2.8, -0.6, 0.5]} scale={0.65}>
+        {/* Body */}
+        <mesh><sphereGeometry args={[0.42, 20, 20]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
+        {/* Head */}
+        <mesh position={[0, 0.58, 0.05]}><sphereGeometry args={[0.35, 20, 20]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
+        {/* Ears */}
+        <mesh position={[-0.13, 1.08, 0]} rotation={[0.1, 0, 0.08]}><capsuleGeometry args={[0.065, 0.32, 4, 10]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
+        <mesh position={[0.13, 1.08, 0]} rotation={[0.1, 0, -0.08]}><capsuleGeometry args={[0.065, 0.32, 4, 10]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
+        {/* Inner ears */}
+        <mesh position={[-0.13, 1.08, 0.04]} rotation={[0.1, 0, 0.08]}><capsuleGeometry args={[0.035, 0.2, 4, 8]} /><meshStandardMaterial color="#ffb5c2" roughness={0.95} /></mesh>
+        <mesh position={[0.13, 1.08, 0.04]} rotation={[0.1, 0, -0.08]}><capsuleGeometry args={[0.035, 0.2, 4, 8]} /><meshStandardMaterial color="#ffb5c2" roughness={0.95} /></mesh>
+        {/* Eyes */}
+        <mesh position={[-0.11, 0.63, 0.3]}><sphereGeometry args={[0.05, 10, 10]} /><meshStandardMaterial color="#1a1a1a" roughness={0.05} metalness={0.3} /></mesh>
+        <mesh position={[0.11, 0.63, 0.3]}><sphereGeometry args={[0.05, 10, 10]} /><meshStandardMaterial color="#1a1a1a" roughness={0.05} metalness={0.3} /></mesh>
+        {/* Eye highlights */}
+        <mesh position={[-0.09, 0.65, 0.34]}><sphereGeometry args={[0.015, 6, 6]} /><meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} /></mesh>
+        <mesh position={[0.13, 0.65, 0.34]}><sphereGeometry args={[0.015, 6, 6]} /><meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} /></mesh>
+        {/* Nose */}
+        <mesh position={[0, 0.5, 0.33]}><sphereGeometry args={[0.028, 8, 8]} /><meshStandardMaterial color="#ff6b9d" roughness={0.7} /></mesh>
+        {/* Blush */}
+        <mesh position={[-0.2, 0.5, 0.24]}><sphereGeometry args={[0.055, 8, 8]} /><meshStandardMaterial color="#ff6b9d" transparent opacity={0.25} /></mesh>
+        <mesh position={[0.2, 0.5, 0.24]}><sphereGeometry args={[0.055, 8, 8]} /><meshStandardMaterial color="#ff6b9d" transparent opacity={0.25} /></mesh>
+        {/* Arms */}
+        <mesh position={[-0.32, 0.1, 0.15]} rotation={[0, 0, 0.4]}><sphereGeometry args={[0.12, 10, 10]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
+        <mesh position={[0.32, 0.1, 0.15]} rotation={[0, 0, -0.4]}><sphereGeometry args={[0.12, 10, 10]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
+      </group>
+    </Float>
   );
 }
 
-function CuteDuck() {
+function ElegantDuck() {
   const ref = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (!ref.current) return;
     const t = state.clock.elapsedTime;
-    ref.current.position.y = -0.9 + Math.sin(t * 2.0 + 1) * 0.12;
-    ref.current.rotation.y = Math.sin(t * 0.6 + 2) * 0.25;
+    ref.current.position.y = -0.7 + Math.sin(t * 0.9 + 1) * 0.07;
+    ref.current.rotation.y = Math.sin(t * 0.35 + 1) * 0.12;
   });
 
   return (
-    <group ref={ref} position={[2.2, -0.9, 1]} scale={0.5}>
-      <mesh><sphereGeometry args={[0.38, 16, 16]} /><meshStandardMaterial color="#ffca3a" roughness={0.95} /></mesh>
-      <mesh position={[0, 0.5, 0.05]}><sphereGeometry args={[0.28, 16, 16]} /><meshStandardMaterial color="#ffca3a" roughness={0.95} /></mesh>
-      <mesh position={[0, 0.4, 0.28]} rotation={[0.3, 0, 0]}><coneGeometry args={[0.07, 0.14, 8]} /><meshStandardMaterial color="#FF8C00" roughness={0.6} /></mesh>
-      <mesh position={[-0.09, 0.55, 0.22]}><sphereGeometry args={[0.035, 8, 8]} /><meshStandardMaterial color="#111" roughness={0.1} /></mesh>
-      <mesh position={[0.09, 0.55, 0.22]}><sphereGeometry args={[0.035, 8, 8]} /><meshStandardMaterial color="#111" roughness={0.1} /></mesh>
-      <mesh position={[-0.16, 0.42, 0.18]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#ffaa00" transparent opacity={0.4} /></mesh>
-      <mesh position={[0.16, 0.42, 0.18]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#ffaa00" transparent opacity={0.4} /></mesh>
-    </group>
+    <Float speed={0.5} floatIntensity={0.06}>
+      <group ref={ref} position={[2.8, -0.7, 0.5]} scale={0.6}>
+        {/* Body */}
+        <mesh><sphereGeometry args={[0.4, 20, 20]} /><meshStandardMaterial color="#ffca3a" roughness={0.95} /></mesh>
+        {/* Head */}
+        <mesh position={[0, 0.52, 0.08]}><sphereGeometry args={[0.3, 20, 20]} /><meshStandardMaterial color="#ffca3a" roughness={0.95} /></mesh>
+        {/* Beak */}
+        <mesh position={[0, 0.42, 0.32]} rotation={[0.2, 0, 0]}><capsuleGeometry args={[0.05, 0.08, 4, 8]} /><meshStandardMaterial color="#FF8C00" roughness={0.6} /></mesh>
+        {/* Eyes */}
+        <mesh position={[-0.1, 0.57, 0.25]}><sphereGeometry args={[0.04, 10, 10]} /><meshStandardMaterial color="#1a1a1a" roughness={0.05} metalness={0.3} /></mesh>
+        <mesh position={[0.1, 0.57, 0.25]}><sphereGeometry args={[0.04, 10, 10]} /><meshStandardMaterial color="#1a1a1a" roughness={0.05} metalness={0.3} /></mesh>
+        {/* Eye highlights */}
+        <mesh position={[-0.08, 0.59, 0.28]}><sphereGeometry args={[0.012, 6, 6]} /><meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} /></mesh>
+        <mesh position={[0.12, 0.59, 0.28]}><sphereGeometry args={[0.012, 6, 6]} /><meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} /></mesh>
+        {/* Blush */}
+        <mesh position={[-0.16, 0.45, 0.2]}><sphereGeometry args={[0.04, 8, 8]} /><meshStandardMaterial color="#ffaa00" transparent opacity={0.35} /></mesh>
+        <mesh position={[0.16, 0.45, 0.2]}><sphereGeometry args={[0.04, 8, 8]} /><meshStandardMaterial color="#ffaa00" transparent opacity={0.35} /></mesh>
+        {/* Wings */}
+        <mesh position={[-0.35, 0.05, 0]} rotation={[0, 0, 0.3]} scale={[0.6, 1, 0.4]}><sphereGeometry args={[0.2, 10, 10]} /><meshStandardMaterial color="#ffca3a" roughness={0.95} /></mesh>
+        <mesh position={[0.35, 0.05, 0]} rotation={[0, 0, -0.3]} scale={[0.6, 1, 0.4]}><sphereGeometry args={[0.2, 10, 10]} /><meshStandardMaterial color="#ffca3a" roughness={0.95} /></mesh>
+      </group>
+    </Float>
   );
 }
 
-function SwingingHook() {
-  const ref = useRef<THREE.Group>(null);
-
-  useFrame((state) => {
-    if (!ref.current) return;
-    const t = state.clock.elapsedTime;
-    ref.current.rotation.z = Math.sin(t * 0.7) * 0.2 - 0.3;
-  });
-
+function CinematicLighting() {
   return (
-    <group ref={ref} position={[0, 1.8, -0.5]} rotation={[0, 0, -0.3]}>
-      <mesh position={[0, -0.4, 0]}><cylinderGeometry args={[0.03, 0.04, 0.9, 8]} /><meshStandardMaterial color="#DEB887" roughness={0.6} /></mesh>
-      <mesh position={[0, 0.12, 0]} rotation={[0, 0, 0]}><torusGeometry args={[0.06, 0.02, 8, 12, Math.PI]} /><meshStandardMaterial color="#C0C0C0" roughness={0.2} metalness={0.7} /></mesh>
-    </group>
+    <>
+      <ambientLight intensity={0.5} color="#fffbf9" />
+      <hemisphereLight intensity={0.3} groundColor="#f9d8d6" color="#ffffff" />
+      {/* Key light — warm */}
+      <directionalLight position={[4, 6, 4]} intensity={0.9} color="#fff5f0" />
+      {/* Fill — pink accent */}
+      <pointLight position={[-4, 2, 3]} intensity={0.4} color="#ff8fb1" distance={10} />
+      {/* Rim — mint accent */}
+      <pointLight position={[4, -1, -2]} intensity={0.3} color="#6ebfb5" distance={8} />
+      {/* Top glow */}
+      <pointLight position={[0, 4, 2]} intensity={0.2} color="#FFD700" distance={6} />
+    </>
   );
 }
 
 function Scene({ isMobile }: { isMobile: boolean }) {
   return (
     <>
-      <ambientLight intensity={0.7} color="#fffbf9" />
-      <directionalLight position={[3, 4, 5]} intensity={0.8} />
-      <pointLight position={[-3, 2, 3]} intensity={0.5} color="#ff8fb1" />
-      <pointLight position={[3, -1, 3]} intensity={0.3} color="#6ebfb5" />
+      <CinematicLighting />
+      <ParallaxCamera />
 
-      <CuteBunny />
-      <CuteDuck />
-      <SwingingHook />
+      {/* Characters */}
+      <ElegantBunny />
+      <ElegantDuck />
 
-      <BouncyYarnBall position={[-1.2, 1.2, 0]} color="#ff8fb1" size={0.2} speed={0.9} />
-      <BouncyYarnBall position={[1.4, 1.0, 0.3]} color="#6ebfb5" size={0.18} speed={1.1} />
-      <BouncyYarnBall position={[0, 1.6, -0.5]} color="#ffca3a" size={0.15} speed={1.3} />
+      {/* Yarn balls — layered depth */}
+      <SoftYarnBall position={[-1.5, 1.4, -1]} color="#ff8fb1" size={0.22} speed={0.35} />
+      <SoftYarnBall position={[1.6, 1.2, -0.5]} color="#6ebfb5" size={0.18} speed={0.45} />
+      <SoftYarnBall position={[0.3, 1.8, -1.5]} color="#ffca3a" size={0.14} speed={0.5} />
+      <SoftYarnBall position={[-0.8, -1.5, -0.8]} color="#E8B4D8" size={0.16} speed={0.3} />
+      <SoftYarnBall position={[1.0, -1.3, -1.2]} color="#A4BE7B" size={0.13} speed={0.4} />
 
-      <PulsatingHeart position={[-1.5, 0.5, 0.8]} delay={0} />
-      <PulsatingHeart position={[1.6, 0.7, 0.5]} delay={1.5} />
-
-      <TwinkleStar position={[-0.8, 1.5, 0.5]} delay={0} />
-      <TwinkleStar position={[1.0, 1.7, 0.3]} delay={0.8} />
-      <TwinkleStar position={[0.3, 2.0, 0]} delay={1.6} />
-      <TwinkleStar position={[-1.8, 0.2, 0.6]} delay={2.2} />
+      {/* Glow orbs — soft ambient particles */}
+      <GlowOrb position={[-1.8, 0.8, 1]} color="#ff8fb1" size={0.05} />
+      <GlowOrb position={[1.5, 1.5, 0.8]} color="#6ebfb5" size={0.04} />
+      <GlowOrb position={[-0.5, 1.8, 0.5]} color="#FFD700" size={0.035} />
+      <GlowOrb position={[2.0, 0.2, 1.2]} color="#ff8fb1" size={0.04} />
+      <GlowOrb position={[-2.2, -0.5, 0.8]} color="#E8B4D8" size={0.045} />
+      <GlowOrb position={[0.8, -1.0, 1.5]} color="#ffca3a" size={0.03} />
 
       {!isMobile && (
         <>
-          <BouncyYarnBall position={[-2.5, 0.3, -1]} color="#E8B4D8" size={0.13} speed={0.7} />
-          <BouncyYarnBall position={[2.3, -0.3, -0.8]} color="#A4BE7B" size={0.14} speed={0.8} />
-          <TwinkleStar position={[2.0, 0.3, 0.8]} delay={3} />
-          <PulsatingHeart position={[0, 1.8, 0.3]} delay={3} />
+          <SoftYarnBall position={[-2.8, 0.2, -2]} color="#B4E4FF" size={0.11} speed={0.25} />
+          <SoftYarnBall position={[2.5, -0.8, -1.8]} color="#F5C6AA" size={0.12} speed={0.35} />
+          <GlowOrb position={[-1.0, -1.5, 1.0]} color="#6ebfb5" size={0.03} />
+          <GlowOrb position={[2.5, 1.0, 0.5]} color="#FFD700" size={0.035} />
         </>
       )}
     </>
@@ -191,7 +261,7 @@ function Scene({ isMobile }: { isMobile: boolean }) {
 }
 
 // ============================================
-// MAIN OVERLAY COMPONENT
+// MAIN OVERLAY
 // ============================================
 
 export default function IntroOverlay() {
@@ -199,16 +269,17 @@ export default function IntroOverlay() {
   const [isExiting, setIsExiting] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const { smoothX, smoothY } = useMouseParallax();
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
-    const timer = setTimeout(() => setShowContent(true), 1200);
+    const timer = setTimeout(() => setShowContent(true), 1500);
     return () => clearTimeout(timer);
   }, []);
 
   const handleDismiss = useCallback(() => {
     setIsExiting(true);
-    setTimeout(() => dismissIntro(), 800);
+    setTimeout(() => dismissIntro(), 900);
   }, [dismissIntro]);
 
   useEffect(() => {
@@ -228,11 +299,11 @@ export default function IntroOverlay() {
       {!isExiting && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.03 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-[1000] flex flex-col items-center justify-center overflow-hidden"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          className="fixed inset-0 z-[1000] overflow-hidden"
           style={{
-            background: "radial-gradient(ellipse at 30% 20%, rgba(255,143,177,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(110,191,181,0.08) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(255,202,58,0.04) 0%, transparent 40%), #fffbf9",
+            background: "radial-gradient(ellipse at 25% 15%, rgba(255,143,177,0.1) 0%, transparent 55%), radial-gradient(ellipse at 75% 85%, rgba(110,191,181,0.08) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(255,240,243,0.5) 0%, transparent 70%), #fffbf9",
           }}
           role="dialog"
           aria-label="Welcome to dip.crochet"
@@ -240,24 +311,21 @@ export default function IntroOverlay() {
           {/* Skip */}
           <motion.button
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
+            animate={{ opacity: 0.6 }}
+            whileHover={{ opacity: 1 }}
+            transition={{ delay: 1 }}
             onClick={handleDismiss}
-            className="absolute top-6 right-6 z-50 flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-primary font-bold text-xs uppercase tracking-widest transition-colors"
+            className="absolute top-6 right-6 z-50 flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-primary font-medium text-xs uppercase tracking-widest transition-all"
           >
-            Skip <X className="w-4 h-4" />
+            Skip <X className="w-3.5 h-3.5" />
           </motion.button>
 
-          {/* Animated background — gradient blobs + patterns */}
-          <IntroBackground />
-
-          {/* FULL SCREEN 3D CANVAS — this is the main visual */}
-          <div className="absolute inset-0 z-0">
+          {/* 3D CANVAS — full screen */}
+          <div className="absolute inset-0 z-[2]">
             <Canvas
-              camera={{ position: [0, 0, 5.5], fov: 45 }}
-              gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
+              camera={{ position: [0, 0, 5.5], fov: 42 }}
+              gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, alpha: true }}
               dpr={isMobile ? [1, 1] : [1, 1.5]}
-              style={{ background: "transparent" }}
             >
               <Suspense fallback={null}>
                 <Scene isMobile={isMobile} />
@@ -265,48 +333,76 @@ export default function IntroOverlay() {
             </Canvas>
           </div>
 
-          {/* Brand text + CTA — on top of 3D */}
-          <div className="relative z-10 flex flex-col items-center justify-center gap-6 pointer-events-none">
-            {/* Brand name */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30, scale: 0.85 }}
+          {/* PARALLAX HTML LAYERS — react to mouse */}
+          <div className="absolute inset-0 z-[3] flex flex-col items-center justify-center pointer-events-none">
+            {/* Brand name — parallax layer 1 (subtle movement) */}
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black tracking-tight select-none"
-              style={{ textShadow: "0 4px 30px rgba(255,143,177,0.15)" }}
+              transition={{ duration: 1.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              style={{ x: smoothX, y: smoothY }}
+              className="relative"
             >
-              <span className="text-[#4a3a35]">dip</span>
-              <span className="text-primary">.</span>
-              <span className="text-primary italic font-light">crochet</span>
-            </motion.h1>
+              <h1
+                className="text-7xl sm:text-8xl md:text-9xl lg:text-[11rem] font-black tracking-tighter select-none leading-none"
+                style={{
+                  textShadow: "0 8px 40px rgba(255,143,177,0.12), 0 2px 10px rgba(74,58,53,0.06)",
+                }}
+              >
+                <span className="text-[#4a3a35]">dip</span>
+                <span className="text-primary text-[1.1em]">.</span>
+                <span className="text-primary italic font-light">crochet</span>
+              </h1>
+
+              {/* Subtle underline accent */}
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 1, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                className="h-[3px] bg-gradient-to-r from-transparent via-primary/40 to-transparent mt-4 mx-auto w-3/4 origin-center"
+              />
+            </motion.div>
 
             {/* Tagline + CTA */}
             <AnimatePresence>
               {showContent && (
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
-                  className="flex flex-col items-center gap-5 pointer-events-auto"
+                  transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex flex-col items-center gap-6 mt-8 md:mt-10 pointer-events-auto"
                 >
-                  <p className="text-base md:text-lg text-muted-foreground font-medium text-center max-w-sm">
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
+                    className="text-base md:text-lg text-muted-foreground font-medium text-center max-w-md leading-relaxed"
+                  >
                     Every stitch tells a story.<br />
                     <span className="text-primary font-bold">Handmade with soul</span>, for yours.
-                  </p>
+                  </motion.p>
 
                   <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.6 }}
+                    whileHover={{ scale: 1.04, y: -3 }}
+                    whileTap={{ scale: 0.96 }}
                     onClick={handleDismiss}
-                    className="group px-10 py-4 md:px-12 md:py-5 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30 flex items-center gap-3 text-sm uppercase tracking-widest hover:shadow-primary/50 transition-shadow"
+                    className="group px-10 py-4 md:px-14 md:py-5 bg-primary text-white font-black rounded-2xl shadow-[0_20px_50px_-12px_rgba(255,143,177,0.4)] flex items-center gap-3 text-sm uppercase tracking-widest hover:shadow-[0_25px_60px_-10px_rgba(255,143,177,0.5)] transition-all duration-300"
                   >
                     Explore Collection
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" />
                   </motion.button>
 
-                  <p className="text-[10px] text-muted-foreground/50 font-bold uppercase tracking-[0.3em] mt-2">
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.4 }}
+                    transition={{ delay: 1.2, duration: 0.8 }}
+                    className="text-[10px] font-medium uppercase tracking-[0.3em] text-muted-foreground mt-3"
+                  >
                     Bekasi, Indonesia ✦ Since 2023
-                  </p>
+                  </motion.p>
                 </motion.div>
               )}
             </AnimatePresence>
