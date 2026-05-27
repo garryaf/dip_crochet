@@ -1,31 +1,10 @@
 # ============================================
-# Cotcret — Docker Compose (Development & Production)
+# Cotcret — Docker Compose (App Only, DB from Neon)
 # ============================================
-# Usage:
-#   Development: docker compose up
-#   Production:  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Usage: docker compose up -d --build
 
 services:
-  # PostgreSQL Database
-  db:
-    image: postgres:16-alpine
-    container_name: cotcret-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: cotcret
-    ports:
-      - "5434:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Next.js Application
+  # Next.js Application (connects to Neon PostgreSQL)
   app:
     build:
       context: .
@@ -35,19 +14,13 @@ services:
     ports:
       - "3333:3333"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/cotcret?schema=public
+      - DATABASE_URL=postgresql://neondb_owner:npg_JD80MwzoZtOf@ep-weathered-block-aq6vt62k-pooler.c-8.us-east-1.aws.neon.tech/crochet?sslmode=require&channel_binding=require
       - AUTH_SECRET=${AUTH_SECRET:-development-secret-change-in-production-min-32-chars}
       - AUTH_URL=http://localhost:3333
       - NEXT_PUBLIC_SITE_URL=http://localhost:3333
-    depends_on:
-      db:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3333/"]
       interval: 30s
       timeout: 10s
+      start_period: 10s
       retries: 3
-
-volumes:
-  postgres_data:
-    driver: local
