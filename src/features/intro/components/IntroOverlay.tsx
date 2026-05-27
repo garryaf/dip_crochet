@@ -1,67 +1,218 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import dynamic from "next/dynamic";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Float } from "@react-three/drei";
+import * as THREE from "three";
 import { ArrowRight, X } from "lucide-react";
-import IntroBackground from "./IntroBackground";
-import IntroLoader from "./IntroLoader";
 import { useIntroState } from "../hooks/useIntroState";
 
-// Lazy load the heavy 3D scene
-const IntroScene = dynamic(() => import("./IntroScene"), {
-  ssr: false,
-  loading: () => <IntroLoader />,
-});
+// ============================================
+// 3D ELEMENTS — All inline for reliability
+// ============================================
 
-/**
- * Main Intro Overlay — orchestrates the entire intro experience.
- * Renders as a fixed overlay on top of the homepage.
- * Dismisses on "Get Started" click or "Skip" button.
- */
+function BouncyYarnBall({ position, color, size = 0.25, speed = 1 }: {
+  position: [number, number, number];
+  color: string;
+  size?: number;
+  speed?: number;
+}) {
+  const ref = useRef<THREE.Mesh>(null);
+  const startY = position[1];
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime * speed;
+    ref.current.position.y = startY + Math.abs(Math.sin(t * 1.2)) * 0.5;
+    ref.current.rotation.x = t * 0.4;
+    ref.current.rotation.z = Math.sin(t * 0.6) * 0.3;
+  });
+
+  return (
+    <mesh ref={ref} position={position}>
+      <sphereGeometry args={[size, 20, 20]} />
+      <meshStandardMaterial color={color} roughness={0.92} metalness={0} />
+    </mesh>
+  );
+}
+
+function PulsatingHeart({ position, delay = 0 }: { position: [number, number, number]; delay?: number }) {
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime + delay;
+    ref.current.position.y = position[1] + Math.sin(t * 1.5) * 0.25;
+    ref.current.rotation.z = Math.sin(t * 0.8) * 0.2;
+    const s = 1 + Math.sin(t * 3) * 0.15;
+    ref.current.scale.setScalar(s);
+  });
+
+  return (
+    <group ref={ref} position={position} scale={0.8}>
+      <mesh position={[-0.07, 0.04, 0]}>
+        <sphereGeometry args={[0.09, 12, 12]} />
+        <meshStandardMaterial color="#ff6b9d" emissive="#ff6b9d" emissiveIntensity={0.3} roughness={0.5} />
+      </mesh>
+      <mesh position={[0.07, 0.04, 0]}>
+        <sphereGeometry args={[0.09, 12, 12]} />
+        <meshStandardMaterial color="#ff6b9d" emissive="#ff6b9d" emissiveIntensity={0.3} roughness={0.5} />
+      </mesh>
+      <mesh position={[0, -0.05, 0]} rotation={[0, 0, Math.PI / 4]}>
+        <boxGeometry args={[0.12, 0.12, 0.09]} />
+        <meshStandardMaterial color="#ff6b9d" emissive="#ff6b9d" emissiveIntensity={0.3} roughness={0.5} />
+      </mesh>
+    </group>
+  );
+}
+
+function TwinkleStar({ position, delay = 0 }: { position: [number, number, number]; delay?: number }) {
+  const ref = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime + delay;
+    ref.current.rotation.y = t * 2;
+    ref.current.rotation.z = t * 1.5;
+    const s = 0.3 + Math.abs(Math.sin(t * 2.5)) * 0.7;
+    ref.current.scale.setScalar(s);
+  });
+
+  return (
+    <mesh ref={ref} position={position}>
+      <octahedronGeometry args={[0.06, 0]} />
+      <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.8} roughness={0.1} metalness={0.5} />
+    </mesh>
+  );
+}
+
+function CuteBunny() {
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    ref.current.position.y = -0.8 + Math.sin(t * 1.8) * 0.15;
+    ref.current.rotation.y = Math.sin(t * 0.5) * 0.2;
+    ref.current.rotation.z = Math.sin(t * 0.9) * 0.05;
+  });
+
+  return (
+    <group ref={ref} position={[-2.2, -0.8, 1]} scale={0.55}>
+      <mesh><sphereGeometry args={[0.4, 16, 16]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
+      <mesh position={[0, 0.55, 0]}><sphereGeometry args={[0.33, 16, 16]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
+      <mesh position={[-0.12, 1.0, 0]} rotation={[0, 0, 0.1]}><capsuleGeometry args={[0.07, 0.28, 4, 8]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
+      <mesh position={[0.12, 1.0, 0]} rotation={[0, 0, -0.1]}><capsuleGeometry args={[0.07, 0.28, 4, 8]} /><meshStandardMaterial color="#ff8fb1" roughness={0.95} /></mesh>
+      <mesh position={[-0.11, 0.6, 0.28]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#111" roughness={0.1} /></mesh>
+      <mesh position={[0.11, 0.6, 0.28]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#111" roughness={0.1} /></mesh>
+      <mesh position={[0, 0.47, 0.3]}><sphereGeometry args={[0.03, 8, 8]} /><meshStandardMaterial color="#ffb5c2" roughness={0.8} /></mesh>
+      <mesh position={[-0.2, 0.47, 0.22]}><sphereGeometry args={[0.06, 8, 8]} /><meshStandardMaterial color="#ff6b9d" transparent opacity={0.35} /></mesh>
+      <mesh position={[0.2, 0.47, 0.22]}><sphereGeometry args={[0.06, 8, 8]} /><meshStandardMaterial color="#ff6b9d" transparent opacity={0.35} /></mesh>
+    </group>
+  );
+}
+
+function CuteDuck() {
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    ref.current.position.y = -0.9 + Math.sin(t * 2.0 + 1) * 0.12;
+    ref.current.rotation.y = Math.sin(t * 0.6 + 2) * 0.25;
+  });
+
+  return (
+    <group ref={ref} position={[2.2, -0.9, 1]} scale={0.5}>
+      <mesh><sphereGeometry args={[0.38, 16, 16]} /><meshStandardMaterial color="#ffca3a" roughness={0.95} /></mesh>
+      <mesh position={[0, 0.5, 0.05]}><sphereGeometry args={[0.28, 16, 16]} /><meshStandardMaterial color="#ffca3a" roughness={0.95} /></mesh>
+      <mesh position={[0, 0.4, 0.28]} rotation={[0.3, 0, 0]}><coneGeometry args={[0.07, 0.14, 8]} /><meshStandardMaterial color="#FF8C00" roughness={0.6} /></mesh>
+      <mesh position={[-0.09, 0.55, 0.22]}><sphereGeometry args={[0.035, 8, 8]} /><meshStandardMaterial color="#111" roughness={0.1} /></mesh>
+      <mesh position={[0.09, 0.55, 0.22]}><sphereGeometry args={[0.035, 8, 8]} /><meshStandardMaterial color="#111" roughness={0.1} /></mesh>
+      <mesh position={[-0.16, 0.42, 0.18]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#ffaa00" transparent opacity={0.4} /></mesh>
+      <mesh position={[0.16, 0.42, 0.18]}><sphereGeometry args={[0.045, 8, 8]} /><meshStandardMaterial color="#ffaa00" transparent opacity={0.4} /></mesh>
+    </group>
+  );
+}
+
+function SwingingHook() {
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    ref.current.rotation.z = Math.sin(t * 0.7) * 0.2 - 0.3;
+  });
+
+  return (
+    <group ref={ref} position={[0, 1.8, -0.5]} rotation={[0, 0, -0.3]}>
+      <mesh position={[0, -0.4, 0]}><cylinderGeometry args={[0.03, 0.04, 0.9, 8]} /><meshStandardMaterial color="#DEB887" roughness={0.6} /></mesh>
+      <mesh position={[0, 0.12, 0]} rotation={[0, 0, 0]}><torusGeometry args={[0.06, 0.02, 8, 12, Math.PI]} /><meshStandardMaterial color="#C0C0C0" roughness={0.2} metalness={0.7} /></mesh>
+    </group>
+  );
+}
+
+function Scene({ isMobile }: { isMobile: boolean }) {
+  return (
+    <>
+      <ambientLight intensity={0.7} color="#fffbf9" />
+      <directionalLight position={[3, 4, 5]} intensity={0.8} />
+      <pointLight position={[-3, 2, 3]} intensity={0.5} color="#ff8fb1" />
+      <pointLight position={[3, -1, 3]} intensity={0.3} color="#6ebfb5" />
+
+      <CuteBunny />
+      <CuteDuck />
+      <SwingingHook />
+
+      <BouncyYarnBall position={[-1.2, 1.2, 0]} color="#ff8fb1" size={0.2} speed={0.9} />
+      <BouncyYarnBall position={[1.4, 1.0, 0.3]} color="#6ebfb5" size={0.18} speed={1.1} />
+      <BouncyYarnBall position={[0, 1.6, -0.5]} color="#ffca3a" size={0.15} speed={1.3} />
+
+      <PulsatingHeart position={[-1.5, 0.5, 0.8]} delay={0} />
+      <PulsatingHeart position={[1.6, 0.7, 0.5]} delay={1.5} />
+
+      <TwinkleStar position={[-0.8, 1.5, 0.5]} delay={0} />
+      <TwinkleStar position={[1.0, 1.7, 0.3]} delay={0.8} />
+      <TwinkleStar position={[0.3, 2.0, 0]} delay={1.6} />
+      <TwinkleStar position={[-1.8, 0.2, 0.6]} delay={2.2} />
+
+      {!isMobile && (
+        <>
+          <BouncyYarnBall position={[-2.5, 0.3, -1]} color="#E8B4D8" size={0.13} speed={0.7} />
+          <BouncyYarnBall position={[2.3, -0.3, -0.8]} color="#A4BE7B" size={0.14} speed={0.8} />
+          <TwinkleStar position={[2.0, 0.3, 0.8]} delay={3} />
+          <PulsatingHeart position={[0, 1.8, 0.3]} delay={3} />
+        </>
+      )}
+    </>
+  );
+}
+
+// ============================================
+// MAIN OVERLAY COMPONENT
+// ============================================
+
 export default function IntroOverlay() {
   const { showIntro, dismissIntro, isReady } = useIntroState();
-  const [sceneLoaded, setSceneLoaded] = useState(false);
-  const [showContent, setShowContent] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [showContent, setShowContent] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  // Detect mobile and reduced motion
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
-    setPrefersReducedMotion(
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    );
+    const timer = setTimeout(() => setShowContent(true), 1200);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Auto-show content after scene loads (or timeout)
-  useEffect(() => {
-    if (!showIntro) return;
-
-    const timer = setTimeout(() => {
-      setSceneLoaded(true);
-      // Stagger content appearance
-      setTimeout(() => setShowContent(true), 500);
-    }, prefersReducedMotion ? 200 : 1500);
-
-    return () => clearTimeout(timer);
-  }, [showIntro, prefersReducedMotion]);
-
-  // Handle dismiss with exit animation
   const handleDismiss = useCallback(() => {
     setIsExiting(true);
-    setTimeout(() => {
-      dismissIntro();
-    }, 800);
+    setTimeout(() => dismissIntro(), 800);
   }, [dismissIntro]);
 
-  // Handle keyboard
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" || e.key === "Enter") {
-        handleDismiss();
-      }
+      if (e.key === "Escape" || e.key === "Enter") handleDismiss();
     };
     if (showIntro) {
       window.addEventListener("keydown", handleKey);
@@ -69,140 +220,90 @@ export default function IntroOverlay() {
     }
   }, [showIntro, handleDismiss]);
 
-  // Don't render until client-side check is done
   if (!isReady || !showIntro) return null;
-
-  // Reduced motion: show simple version
-  if (prefersReducedMotion) {
-    return (
-      <AnimatePresence>
-        {!isExiting && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[1000] bg-[#fffbf9] flex flex-col items-center justify-center gap-8"
-            role="dialog"
-            aria-label="Welcome to dip.crochet"
-          >
-            <h1 className="text-5xl md:text-7xl font-black text-[#4a3a35]">
-              dip<span className="text-primary">.</span>crochet
-            </h1>
-            <p className="text-muted-foreground font-medium text-lg">
-              Premium Handmade Crochet Characters
-            </p>
-            <button
-              onClick={handleDismiss}
-              className="px-10 py-5 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30"
-            >
-              Explore Collection
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    );
-  }
 
   return (
     <AnimatePresence>
       {!isExiting && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.02 }}
+          exit={{ opacity: 0, scale: 1.03 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="fixed inset-0 z-[1000] bg-[#fffbf9] flex flex-col items-center justify-center overflow-hidden"
           role="dialog"
           aria-label="Welcome to dip.crochet"
         >
-          {/* Skip button — always visible */}
+          {/* Skip */}
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
             onClick={handleDismiss}
             className="absolute top-6 right-6 z-50 flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-primary font-bold text-xs uppercase tracking-widest transition-colors"
-            aria-label="Skip intro"
           >
             Skip <X className="w-4 h-4" />
           </motion.button>
 
-          {/* Animated background patterns */}
-          <IntroBackground />
-
-          {/* 3D Scene with HTML text fallback */}
-          <div className="relative w-full h-[50vh] md:h-[55vh] max-w-5xl flex items-center justify-center">
-            {/* 3D Canvas — cute animated scene */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1.5, delay: 0.5 }}
-              className="absolute inset-0 z-0"
+          {/* FULL SCREEN 3D CANVAS — this is the main visual */}
+          <div className="absolute inset-0 z-0">
+            <Canvas
+              camera={{ position: [0, 0, 5.5], fov: 45 }}
+              gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
+              dpr={isMobile ? [1, 1] : [1, 1.5]}
+              style={{ background: "transparent" }}
             >
-              <IntroScene quality={isMobile ? "low" : "high"} />
-            </motion.div>
-
-            {/* HTML brand text — centered on top of 3D scene */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 1.0, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="relative z-10 pointer-events-none text-center"
-            >
-              <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight select-none drop-shadow-sm">
-                <span className="text-[#4a3a35]">dip</span>
-                <span className="text-primary">.</span>
-                <span className="text-primary italic font-light">crochet</span>
-              </h1>
-            </motion.div>
+              <Suspense fallback={null}>
+                <Scene isMobile={isMobile} />
+              </Suspense>
+            </Canvas>
           </div>
 
-          {/* Tagline + CTA */}
-          <AnimatePresence>
-            {showContent && (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="flex flex-col items-center gap-6 mt-4 md:mt-8 px-6 text-center"
-              >
-                {/* Tagline */}
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
+          {/* Brand text + CTA — on top of 3D */}
+          <div className="relative z-10 flex flex-col items-center justify-center gap-6 pointer-events-none">
+            {/* Brand name */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30, scale: 0.85 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black tracking-tight select-none"
+              style={{ textShadow: "0 4px 30px rgba(255,143,177,0.15)" }}
+            >
+              <span className="text-[#4a3a35]">dip</span>
+              <span className="text-primary">.</span>
+              <span className="text-primary italic font-light">crochet</span>
+            </motion.h1>
+
+            {/* Tagline + CTA */}
+            <AnimatePresence>
+              {showContent && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.6 }}
-                  className="text-lg md:text-xl text-muted-foreground font-medium max-w-md leading-relaxed"
+                  transition={{ duration: 0.8 }}
+                  className="flex flex-col items-center gap-5 pointer-events-auto"
                 >
-                  Every stitch tells a story.
-                  <br />
-                  <span className="text-primary font-bold">Handmade with soul</span>, for yours.
-                </motion.p>
+                  <p className="text-base md:text-lg text-muted-foreground font-medium text-center max-w-sm">
+                    Every stitch tells a story.<br />
+                    <span className="text-primary font-bold">Handmade with soul</span>, for yours.
+                  </p>
 
-                {/* Get Started Button */}
-                <motion.button
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ delay: 0.5, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleDismiss}
-                  className="group px-12 py-5 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30 flex items-center gap-3 text-sm md:text-base uppercase tracking-widest hover:shadow-primary/50 transition-shadow"
-                >
-                  Explore Collection
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleDismiss}
+                    className="group px-10 py-4 md:px-12 md:py-5 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30 flex items-center gap-3 text-sm uppercase tracking-widest hover:shadow-primary/50 transition-shadow"
+                  >
+                    Explore Collection
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
 
-                {/* Subtle hint */}
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1, duration: 0.6 }}
-                  className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-[0.3em]"
-                >
-                  Bekasi, Indonesia ✦ Since 2023
-                </motion.p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <p className="text-[10px] text-muted-foreground/50 font-bold uppercase tracking-[0.3em] mt-2">
+                    Bekasi, Indonesia ✦ Since 2023
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
