@@ -6,6 +6,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import * as THREE from "three";
 import { ArrowRight, X } from "lucide-react";
+import IntroBackground from "./IntroBackground";
 import { useIntroState } from "../hooks/useIntroState";
 
 // ============================================
@@ -229,7 +230,10 @@ export default function IntroOverlay() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.03 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-[1000] bg-[#fffbf9] flex flex-col items-center justify-center overflow-hidden"
+          className="fixed inset-0 z-[1000] flex flex-col items-center justify-center overflow-hidden"
+          style={{
+            background: "radial-gradient(ellipse at 30% 20%, rgba(255,143,177,0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(110,191,181,0.08) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(255,202,58,0.04) 0%, transparent 40%), #fffbf9",
+          }}
           role="dialog"
           aria-label="Welcome to dip.crochet"
         >
@@ -243,6 +247,9 @@ export default function IntroOverlay() {
           >
             Skip <X className="w-4 h-4" />
           </motion.button>
+
+          {/* Animated background — gradient blobs + patterns */}
+          <IntroBackground />
 
           {/* FULL SCREEN 3D CANVAS — this is the main visual */}
           <div className="absolute inset-0 z-0">
