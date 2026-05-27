@@ -129,17 +129,28 @@ export default function IntroOverlay() {
           {/* Animated background patterns */}
           <IntroBackground />
 
-          {/* 3D Scene */}
-          <div className="relative w-full h-[40vh] md:h-[50vh] max-w-4xl">
-            <AnimatePresence>
-              {!sceneLoaded && <IntroLoader />}
-            </AnimatePresence>
-
+          {/* 3D Scene with HTML text fallback */}
+          <div className="relative w-full h-[35vh] md:h-[45vh] max-w-4xl flex items-center justify-center">
+            {/* HTML text fallback — always visible as base layer */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={sceneLoaded ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full h-full"
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.0, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
+            >
+              <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight select-none">
+                <span className="text-[#4a3a35]">dip</span>
+                <span className="text-primary">.</span>
+                <span className="text-primary italic font-light">crochet</span>
+              </h1>
+            </motion.div>
+
+            {/* 3D Canvas overlay — adds depth and motion on top of text */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={sceneLoaded ? { opacity: 0.6 } : { opacity: 0 }}
+              transition={{ duration: 2, delay: 1 }}
+              className="absolute inset-0 z-0"
             >
               <IntroScene quality={isMobile ? "low" : "high"} />
             </motion.div>
