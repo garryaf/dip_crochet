@@ -15,13 +15,14 @@ import { useIntroState } from "../hooks/useIntroState";
 function useMouseParallax() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const smoothX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-  const smoothY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+  const smoothX = useSpring(mouseX, { stiffness: 80, damping: 15 });
+  const smoothY = useSpring(mouseY, { stiffness: 80, damping: 15 });
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 2;
-      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      // Range: -30 to +30 pixels movement
+      const x = (e.clientX / window.innerWidth - 0.5) * 60;
+      const y = (e.clientY / window.innerHeight - 0.5) * 40;
       mouseX.set(x);
       mouseY.set(y);
     };
@@ -39,16 +40,16 @@ function ParallaxCamera() {
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
-      mouseRef.current.x = (e.clientX / window.innerWidth - 0.5) * 0.5;
-      mouseRef.current.y = (e.clientY / window.innerHeight - 0.5) * 0.3;
+      mouseRef.current.x = (e.clientX / window.innerWidth - 0.5) * 2.0;
+      mouseRef.current.y = (e.clientY / window.innerHeight - 0.5) * 1.5;
     };
     window.addEventListener("mousemove", handleMove);
     return () => window.removeEventListener("mousemove", handleMove);
   }, []);
 
   useFrame(() => {
-    camera.position.x += (mouseRef.current.x - camera.position.x) * 0.02;
-    camera.position.y += (-mouseRef.current.y - camera.position.y) * 0.02;
+    camera.position.x += (mouseRef.current.x - camera.position.x) * 0.05;
+    camera.position.y += (-mouseRef.current.y - camera.position.y) * 0.05;
     camera.lookAt(0, 0, 0);
   });
 
@@ -271,11 +272,28 @@ export default function IntroOverlay() {
   const [isMobile, setIsMobile] = useState(false);
   const { smoothX, smoothY } = useMouseParallax();
 
+  // Tilt values (smaller range for rotation: -5deg to +5deg)
+  const tiltX = useSpring(useMotionValue(0), { stiffness: 80, damping: 15 });
+  const tiltY = useSpring(useMotionValue(0), { stiffness: 80, damping: 15 });
+
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
     const timer = setTimeout(() => setShowContent(true), 1500);
-    return () => clearTimeout(timer);
-  }, []);
+
+    // Tilt listener
+    const handleMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * -8; // -4 to +4 degrees
+      const y = (e.clientY / window.innerHeight - 0.5) * 6;  // -3 to +3 degrees
+      tiltX.set(y); // rotateX based on Y mouse
+      tiltY.set(-x); // rotateY based on X mouse (inverted for natural feel)
+    };
+    window.addEventListener("mousemove", handleMove);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("mousemove", handleMove);
+    };
+  }, [tiltX, tiltY]);
 
   const handleDismiss = useCallback(() => {
     setIsExiting(true);
@@ -340,7 +358,13 @@ export default function IntroOverlay() {
               initial={{ opacity: 0, y: 40, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 1.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              style={{ x: smoothX, y: smoothY }}
+              style={{
+                x: smoothX,
+                y: smoothY,
+                rotateX: tiltX,
+                rotateY: tiltY,
+                perspective: 1000,
+              }}
               className="relative"
             >
               <h1
