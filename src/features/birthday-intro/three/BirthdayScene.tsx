@@ -3,6 +3,15 @@
 import { Component, Suspense, type ReactNode } from 'react';
 import { Canvas } from '@react-three/fiber';
 import type { BirthdayPhase } from '../types';
+import { CinematicLighting } from './CinematicLighting';
+import { ParticleSystem } from './ParticleSystem';
+import { YarnBalls } from './YarnBalls';
+import { CrochetFlowers } from './CrochetFlowers';
+import { Clouds } from './Clouds';
+import { ParallaxCamera } from './ParallaxCamera';
+import { AnimeSilhouette } from './AnimeSilhouette';
+import { PostProcessing } from './PostProcessing';
+import { SCROLL_SECTIONS } from '../utils/scrollMath';
 
 // ─── Error Boundary for WebGL failures ─────────────────────────────────────────
 
@@ -59,24 +68,57 @@ export function BirthdayScene({
   isMobile,
   isReducedMotion,
 }: BirthdaySceneProps) {
+  // Show anime silhouette after the final intro text line
+  const showSilhouette = scrollProgress >= SCROLL_SECTIONS.text.end;
+
+  // For reduced motion or if WebGL is likely to struggle, use a simpler scene
+  if (isReducedMotion) {
+    return <StaticFallback />;
+  }
+
   return (
     <WebGLErrorBoundary fallback={<StaticFallback />}>
       <Canvas
-        dpr={isMobile ? [1, 1.5] : [1, 2]}
+        dpr={isMobile ? [1, 1] : [1, 1.5]}
         camera={{ position: [0, 0, 5], fov: 60 }}
         gl={{
-          antialias: !isMobile,
+          antialias: false,
           alpha: false,
-          failIfMajorPerformanceCaveat: true,
+          failIfMajorPerformanceCaveat: false,
+          powerPreference: 'default',
+        }}
+        onCreated={({ gl }) => {
+          // Handle WebGL context lost gracefully
+          const canvas = gl.domElement;
+          canvas.addEventListener('webglcontextlost', (e) => {
+            e.preventDefault();
+          });
         }}
       >
         <Suspense fallback={null}>
-          {/* 3D scene children will be added in subsequent tasks:
-              - CinematicLighting
-              - ParticleSystem
-              - ParallaxCamera
-              - PostProcessing
-              etc. */}
+          {/* Lighting and atmosphere */}
+          <CinematicLighting />
+
+          {/* Particles */}
+          <ParticleSystem
+            phase={phase}
+            scrollProgress={scrollProgress}
+            isMobile={isMobile}
+          />
+
+          {/* Floating objects */}
+          <YarnBalls />
+          <CrochetFlowers />
+          <Clouds />
+
+          {/* Anime couple silhouette — shown after text section */}
+          <AnimeSilhouette visible={showSilhouette} />
+
+          {/* Camera parallax */}
+          <ParallaxCamera isMobile={isMobile} isReducedMotion={isReducedMotion} />
+
+          {/* Post-processing effects — skip on mobile for performance */}
+          {!isMobile && <PostProcessing />}
         </Suspense>
       </Canvas>
     </WebGLErrorBoundary>

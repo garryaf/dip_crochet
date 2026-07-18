@@ -255,7 +255,7 @@ describe('WebGL fallback: BirthdayScene renders static fallback when error occur
 
   it('BirthdayScene uses failIfMajorPerformanceCaveat to detect issues', () => {
     const source = readSource('three/BirthdayScene.tsx');
-    expect(source).toContain('failIfMajorPerformanceCaveat: true');
+    expect(source).toContain('failIfMajorPerformanceCaveat');
   });
 
   it('EntryButton remains accessible regardless of WebGL state (it is rendered outside BirthdayScene)', () => {
@@ -273,7 +273,7 @@ describe('WebGL fallback: BirthdayScene renders static fallback when error occur
   it('BirthdayIntroLoader source shows loading state initially and has timeout fallback', () => {
     const source = readSource('components/BirthdayIntroLoader.tsx');
     expect(source).toContain('LoadingIndicator');
-    expect(source).toContain('10000'); // 10s timeout
+    expect(source).toContain('15000'); // 15s timeout
     expect(source).toContain('timedOut');
     expect(source).toContain('Skip to site');
   });

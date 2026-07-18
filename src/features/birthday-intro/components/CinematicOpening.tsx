@@ -47,7 +47,7 @@ export function CinematicOpening({ phase }: CinematicOpeningProps) {
   const title = 'HAPPY BIRTHDAY';
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+    <div className="fixed inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
       {/* Black screen overlay */}
       <AnimatePresence>
         {stage === 'black' && (
@@ -59,10 +59,15 @@ export function CinematicOpening({ phase }: CinematicOpeningProps) {
         )}
       </AnimatePresence>
 
+      {/* Semi-transparent backdrop for text readability */}
+      {(stage === 'particles' || stage === 'title' || stage === 'name') && (
+        <div className="absolute inset-0 bg-black/60" />
+      )}
+
       {/* Title: HAPPY BIRTHDAY letter-by-letter */}
       {(stage === 'title' || stage === 'name') && (
         <motion.h1
-          className="text-4xl md:text-6xl font-serif text-white tracking-widest mb-8 drop-shadow-lg"
+          className="text-4xl md:text-6xl font-serif text-white tracking-widest mb-8 drop-shadow-lg relative z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -85,13 +90,25 @@ export function CinematicOpening({ phase }: CinematicOpeningProps) {
       {/* Name: fade and scale */}
       {stage === 'name' && (
         <motion.h2
-          className="text-2xl md:text-4xl font-serif text-pink-200 drop-shadow-lg"
+          className="text-2xl md:text-4xl font-serif text-pink-200 drop-shadow-lg relative z-10"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: TIMING.nameReveal / 1000, ease: 'easeOut' }}
         >
           Dinar Intan Permatasari
         </motion.h2>
+      )}
+
+      {/* Scroll hint after name appears */}
+      {stage === 'name' && (
+        <motion.p
+          className="absolute bottom-10 text-white/60 text-sm animate-bounce relative z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 0.5 }}
+        >
+          ↓ Scroll untuk melanjutkan ↓
+        </motion.p>
       )}
     </div>
   );

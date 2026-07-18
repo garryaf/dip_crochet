@@ -53,7 +53,7 @@ export function AnimatedBook({ scrollProgress, phase }: AnimatedBookProps) {
 
   return (
     <motion.div
-      className="absolute inset-0 flex items-center justify-center pointer-events-none px-4"
+      className="fixed inset-0 flex items-center justify-center pointer-events-none px-4 z-10"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: TIMING.bookAppear / 1000, ease: 'easeOut' }}

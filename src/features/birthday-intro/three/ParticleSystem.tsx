@@ -11,13 +11,13 @@ const MAX_VELOCITY = 0.5; // units/sec
 const MIN_OSCILLATION_PERIOD = 4; // seconds (frequency <= 0.25 Hz)
 const BOUNDS = { x: 6, y: 4, z: 3 };
 
-// Base counts per type (desktop)
+// Base counts per type (desktop) - reduced for better compatibility
 const BASE_COUNTS = {
-  sakura: 15,
-  hearts: 12,
-  butterflies: 8,
-  stars: 15,
-  dust: 10,
+  sakura: 8,
+  hearts: 6,
+  butterflies: 4,
+  stars: 8,
+  dust: 5,
 } as const;
 
 type ParticleType = keyof typeof BASE_COUNTS;

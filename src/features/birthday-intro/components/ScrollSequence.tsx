@@ -29,8 +29,11 @@ export function ScrollSequence({ scrollProgress }: ScrollSequenceProps) {
     return count;
   }, [scrollProgress]);
 
+  // Don't render during cinematic phase (CinematicOpening handles that)
+  if (scrollProgress < TEXT_START) return null;
+
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4">
+    <div className="fixed inset-0 flex flex-col items-center justify-center pointer-events-none px-4 z-10">
       {INTRO_LINES.map((line, index) => (
         <motion.p
           key={index}
